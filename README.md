@@ -9,7 +9,7 @@
 
 ## ✨ Key Features
 
-* **🔐 Student Account Login & Private Storage:** Secure local sign-in and registration using a 10-digit student ID format (starting with `2`) and custom `unza` password validation. Each user's schedule and files are stored privately in their browser.
+* **🔐 Student Account Login & Private Storage:** Local sign-in and registration using a 10-digit computer number format (starting with `2`) and a password that starts with `unza` and contains at least 6 characters.
 * **🎓 Direct UNZA Moodle Calendar Sync:** Export your upcoming labs, tests, quizzes, and exams from UNZA Moodle as an `.ics` file and import them in one click to auto-populate your schedule with alarms.
 * **📅 Dual Event Schedulers:**
   * **Academic Events:** Track **Labs**, **Tests**, **Quizzes**, **Exams**, **Assignments**, and **Academic Records**.
@@ -25,11 +25,13 @@
 
 1. **Open the Live Portal:** Visit [https://github.io](https://github.io).
 2. **Create an Account:**
-   * Click the **Create Account** tab.
-   * Enter a **10-digit Student ID** starting with `2` (e.g., `2024067832`).
-   * Create a **password starting with `unza`** (at least 4 characters long).
-3. **Activate Alarms:** Click **Activate Device Alarm** at the top of the dashboard so your browser unlocks audio ringtones and notifications.
-4. **Add Events or Sync Moodle:** Schedule academic or personal events manually, or click **Export from Moodle** and upload your `.ics` calendar file.
+   * The login screen appears when the app opens.
+   * Select **Create account**.
+   * Enter a **10-digit computer number** starting with `2` (e.g., `2024067832`).
+   * Create a **password starting with `unza`** that is at least 6 characters long. Letters and digits may be added after `unza`.
+3. **Log In:** Use your saved computer number and password on the login screen.
+4. **Activate Alarms:** Click **Activate alarm sound** at the top of the dashboard so your browser unlocks audio ringtones and notifications.
+5. **Add Events or Sync Moodle:** Schedule academic or personal events manually, or click **Export from Moodle** and upload your `.ics` calendar file.
 
 ---
 
