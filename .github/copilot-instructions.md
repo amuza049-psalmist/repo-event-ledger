@@ -16,12 +16,14 @@
 - Prefer surgical changes to the relevant function or markup block. Avoid unrelated formatting or restructuring of the embedded script.
 - Keep the page accessible: preserve labels and form associations, use semantic elements, maintain keyboard operation, and use ARIA/live status text when dynamic feedback changes.
 - Preserve external portal links and add `target="_blank"` links with `rel="noopener noreferrer"` for consistency.
-- Do not add authentication or server-side storage; data is intentionally local to the browser.
+- Keep account access and data storage local to the browser; this static site has no backend or server-side authentication.
 
 ## Application behavior
 
-- Events are persisted in `localStorage` under `unza-event-ledger-events-v1`. Protect event loading and saving with the existing graceful fallback patterns.
-- Uploaded files are persisted in IndexedDB database `unza-event-ledger-files-v1`, object store `files`, with a 25 MB per-file limit.
+- Events are encrypted with Web Crypto (AES-GCM, using a PBKDF2-derived account key) before persistence in `localStorage` under `unza-event-ledger-events-v1`. Never store decrypted event data or passwords in browser storage.
+- Uploaded files are encrypted with the same in-memory account key before persistence in IndexedDB database `unza-event-ledger-files-v1`, object store `files`, with a 25 MB per-file limit.
+- The account encryption key exists only while the user is logged in. Do not add automatic session restoration; logout/reload should require the password again. Forgotten passwords cannot recover encrypted data.
+- Treat the local login as a lock for encrypted local data, not protection against a compromised browser/device or modified client code. Use HTTPS/Web Crypto; do not claim server-backed security.
 - Calendar imports and exports use `.ics` text. Preserve CRLF output, escaping, VEVENT structure, UID/DTSTAMP/DTSTART fields, and the existing duplicate detection by title and start time.
 - Alarm scheduling is browser-limited. Preserve future-event validation, page-visible timer behavior, Web Audio activation, Notification permission handling, and the stop-alarm behavior.
 - Browser APIs can be unavailable or restricted. Keep capability checks and user-visible fallback/error messages for AudioContext, IndexedDB, Notifications, localStorage, FileReader, and Blob URLs.
