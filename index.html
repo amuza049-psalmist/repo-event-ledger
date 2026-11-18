@@ -1,472 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Event Ledger — UNZA Student Login, Alarm Scheduler &amp; File Library</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1117">
+  <title>UNZA Event Ledger — Scheduler, Alarms & Files</title>
   <style>
-    :root {
-      color-scheme: dark;
-      --page: #0d1117;
-      --surface: rgba(22, 27, 34, 0.94);
-      --border: #30363d;
-      --text: #f0f6fc;
-      --muted: #a8b2bd;
-      --green: #238636;
-      --blue: #0969da;
-      --teal: #0d9488;
-      --orange: #f97316;
-      --purple: #8250df;
-      --red: #da3633;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-      color: var(--text);
-      font-family: "Segoe UI", Tahoma, sans-serif;
-      background-color: var(--page);
-      background-image:
-        linear-gradient(rgba(10, 15, 25, 0.55), rgba(10, 15, 25, 0.78)),
-        url("unza.jpg");
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: cover;
-      background-attachment: fixed;
-    }
-
-    button, a, input, select { font: inherit; }
-
-    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
-      outline: 3px solid #58a6ff;
-      outline-offset: 2px;
-    }
-
-    /* Login & Registration Screen */
-    .auth-wrapper {
-      min-height: 90vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 430px;
-      padding: 28px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--surface);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
-    }
-
-    .auth-card h2 {
-      margin: 0 0 6px;
-      text-align: center;
-      font-size: 1.65rem;
-    }
-
-    .auth-card p.sub {
-      margin: 0 0 18px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    .auth-tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      background: #0d1117;
-      color: var(--muted);
-      font-weight: 650;
-      cursor: pointer;
-    }
-
-    .tab-btn.active {
-      background: var(--green);
-      border-color: var(--green);
-      color: white;
-    }
-
-    .rule-hint {
-      margin: -4px 0 12px 2px;
-      color: #99f6e4;
-      font-size: 0.78rem;
-    }
-
-    .error-msg {
-      display: none;
-      margin-bottom: 12px;
-      padding: 10px 12px;
-      border: 1px solid var(--red);
-      border-radius: 7px;
-      background: rgba(218, 54, 51, 0.22);
-      color: #ffa198;
-      font-size: 0.85rem;
-    }
-
-    /* Main Container */
-    .container {
-      display: none;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 18px;
-      padding: 18px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--surface);
-    }
-
-    h1 {
-      margin: 0 0 6px;
-      font-size: clamp(1.45rem, 3vw, 1.95rem);
-    }
-
-    header p, .intro {
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .header-right {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .links, .category-nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 9px;
-    }
-
-    .site-link,
-    .category-btn,
-    .upload-btn,
-    .file-action,
-    .enable-btn,
-    .logout-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      border: 0;
-      border-radius: 7px;
-      color: white;
-      text-decoration: none;
-      font-weight: 650;
-      cursor: pointer;
-    }
-
-    .site-link {
-      padding: 9px 14px;
-      background: var(--orange);
-    }
-
-    .site-link.sis {
-      background: var(--purple);
-    }
-
-    .user-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 7px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #0d1117;
-      font-size: 0.88rem;
-    }
-
-    .logout-btn {
-      padding: 6px 11px;
-      background: var(--red);
-      font-size: 0.82rem;
-    }
-
-    /* Alarm & Moodle Bars */
-    .status-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-      padding: 13px 18px;
-      border: 1px solid var(--teal);
-      border-radius: 10px;
-      background: rgba(13, 148, 136, 0.2);
-    }
-
-    .status-bar span {
-      color: #99f6e4;
-      font-size: 0.9rem;
-    }
-
-    .enable-btn {
-      padding: 8px 14px;
-      background: var(--teal);
-      font-size: 0.85rem;
-    }
-
-    .moodle-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 20px;
-      padding: 14px 18px;
-      border: 1px solid var(--orange);
-      border-radius: 10px;
-      background: rgba(249, 115, 22, 0.16);
-    }
-
-    .moodle-bar h3 {
-      margin: 0 0 4px;
-      color: #fdba74;
-      font-size: 1rem;
-    }
-
-    .moodle-bar p {
-      margin: 0;
-      color: #e2e8f0;
-      font-size: 0.84rem;
-    }
-
-    /* Section Headings */
-    .section-title {
-      margin: 24px 0 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-      font-size: 1.25rem;
-    }
-
-    /* Forms & Inputs */
-    .field {
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      background: #0d1117;
-      color: var(--text);
-      font-size: 0.9rem;
-    }
-
-    .upload-btn {
-      width: 100%;
-      padding: 11px;
-      background: var(--green);
-    }
-
-    .upload-btn:hover {
-      background: #2ea043;
-    }
-
-    .upload-btn.teal {
-      background: var(--teal);
-    }
-
-    /* Grids & Cards */
-    .scheduler-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .card {
-      min-width: 0;
-      padding: 18px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: var(--surface);
-      scroll-margin-top: 16px;
-    }
-
-    .card h2 {
-      margin: 0 0 8px;
-      font-size: 1.12rem;
-    }
-
-    .card p.desc {
-      min-height: 2.4em;
-      margin: 0 0 12px;
-      color: var(--muted);
-      font-size: 0.88rem;
-    }
-
-    /* Category Jump Bar */
-    .intro {
-      margin-bottom: 12px;
-      line-height: 1.5;
-    }
-
-    .category-nav {
-      justify-content: center;
-      margin: 14px 0 18px;
-    }
-
-    .category-btn {
-      padding: 9px 13px;
-      background: var(--blue);
-    }
-
-    .category-btn[data-category="Tests"] { background: #8250df; }
-    .category-btn[data-category="Quizzes"] { background: #bf8700; }
-    .category-btn[data-category="Labs"] { background: #cf222e; }
-    .category-btn[data-category="Exams"] { background: #a40e26; }
-    .category-btn[data-category="Other"] { background: var(--teal); }
-
-    /* Lists & Items */
-    .item-list {
-      max-height: 310px;
-      margin: 12px 0 0;
-      padding: 0;
-      overflow-y: auto;
-      list-style: none;
-    }
-
-    .item-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 8px;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      background: rgba(13, 17, 23, 0.88);
-    }
-
-    .item-main {
-      min-width: 0;
-      overflow-wrap: anywhere;
-    }
-
-    .item-title {
-      font-weight: 650;
-    }
-
-    .item-meta {
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 0.78rem;
-    }
-
-    .badge {
-      display: inline-block;
-      margin-right: 5px;
-      margin-bottom: 4px;
-      padding: 2px 8px;
-      border-radius: 12px;
-      background: #1f6feb;
-      color: white;
-      font-size: 0.72rem;
-      font-weight: 600;
-    }
-
-    .badge.moodle { background: var(--orange); }
-    .badge.other { background: var(--teal); }
-
-    .item-actions {
-      display: flex;
-      flex: 0 0 auto;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .file-action {
-      padding: 6px 9px;
-      font-size: 0.76rem;
-    }
-
-    .download-btn { background: #2563eb; }
-    .delete-btn { background: var(--red); }
-
-    .empty {
-      color: var(--muted);
-      font-size: 0.86rem;
-    }
-
-    .notice {
-      margin: 20px 0 0;
-      padding: 12px 14px;
-      border: 1px solid #9a6700;
-      border-radius: 8px;
-      background: rgba(154, 103, 0, 0.18);
-      color: #f0d58c;
-      font-size: 0.86rem;
-      line-height: 1.5;
-    }
-
-    /* Full-Screen Alarm Banner */
-    .alarm-banner {
-      display: none;
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
-      padding: 18px 28px;
-      border: 2px solid #fca5a5;
-      border-radius: 12px;
-      background: #cf222e;
-      color: white;
-      font-size: 1.08rem;
-      font-weight: bold;
-      text-align: center;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75);
-    }
-
-    .stop-alarm-btn {
-      margin-top: 10px;
-      padding: 7px 18px;
-      border: 0;
-      border-radius: 6px;
-      background: white;
-      color: #cf222e;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    #filePicker, #icsPicker { display: none; }
-
-    @media (max-width: 900px) {
-      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 720px) {
-      .scheduler-grid { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 600px) {
-      body { padding: 12px; background-attachment: scroll; }
-      header { padding: 15px; }
-      .grid { grid-template-columns: 1fr; }
+    :root{color-scheme:dark;--bg:#0d1117;--panel:#161b22;--line:#30363d;--text:#f0f6fc;--muted:#a8b2bd;--teal:#0d9488;--blue:#0969da;--red:#da3633}
+    *{box-sizing:border-box}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,"Segoe UI",sans-serif}main{max-width:1050px;margin:auto}header,.panel,.status{padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--panel);margin-bottom:16px}header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}h1,h2,h3,p{margin-top:0}h1{margin-bottom:4px}p,.muted{color:var(--muted)}.links,.actions{display:flex;flex-wrap:wrap;gap:9px}a,button,.button{display:inline-block;border:0;border-radius:7px;padding:9px 13px;background:var(--blue);color:white;text-decoration:none;font:inherit;font-weight:650;cursor:pointer}button.secondary{background:#30363d}button.danger{background:var(--red)}button.teal{background:var(--teal)}.status{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;border-color:var(--teal)}.status p{margin:0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field{width:100%;margin:0 0 10px;padding:10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--text);font:inherit}label{display:block;font-weight:600;margin:8px 0 4px}.event-list,.file-list{list-style:none;padding:0;margin:0}.row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}.row:first-child{border-top:0}.row main{min-width:0}.row-title{font-weight:700;overflow-wrap:anywhere}.row small{display:block;color:var(--muted)}.row-actions{display:flex;gap:6px;flex-shrink:0}.row-actions button{padding:6px 9px;font-size:.85rem}.notice{padding:12px;border:1px solid #9a6700;border-radius:8px;color:#f0d58c;background:#33280d;font-size:.92rem}.alarm{display:none;position:fixed;z-index:5;top:15px;left:50%;transform:translateX(-50%);width:min(90vw,600px);padding:18px;border:2px solid #fca5a5;border-radius:12px;background:#cf222e;color:white;text-align:center;box-shadow:0 8px 30px #000}.alarm.show{display:block}input[type=file]{padding:8px}#icsPicker,#filePicker{display:none}.empty{color:var(--muted);padding:8px 0}.badge{display:inline-block;border-radius:12px;padding:2px 8px;margin-right:5px;background:#1f6feb;font-size:.78rem}.badge.imported{background:#bd561d}@media(max-width:700px){body{padding:12px}.grid{grid-template-columns:1fr}.row{flex-direction:column}.row-actions{flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+  <div id="alarmBanner" class="alarm" role="alert" aria-live="assertive"><div id="alarmText"></div><button id="stopAlarm" class="secondary">Stop alarm</button></div>
+  <main>
+    <header><div><h1>🎓 UNZA Event Ledger</h1><p>Schedule academic and personal events, import Moodle/SIS calendars, and keep your files on this device.</p></div><nav class="links" aria-label="UNZA portals"><a href="https://moodle.unza.zm/" target="_blank" rel="noopener noreferrer">Open Moodle</a><a href="https://sis.unza.zm/" target="_blank" rel="noopener noreferrer">Open SIS</a></nav></header>
+    <section class="status"><p id="alarmStatus">Alarms are not activated. Keep this page open for alarms to run.</p><button id="activateAlarm" class="teal">Activate device alarm</button></section>
+    <div class="notice"><strong>Portal/import note:</strong> Sign in to Moodle or SIS, download your calendar as an <code>.ics</code> file, then import it below. A website cannot sign in to those portals or fetch private files directly. Uploaded documents and events are stored only in this browser on this device; this static site does not send them to a server.</div>
+    <section class="grid">
+      <article class="panel"><h2>📅 Event scheduler</h2><form id="eventForm"><label for="title">Event title</label><input id="title" class="field" maxlength="120" required placeholder="e.g. CSC 2101 test"><label for="category">Category</label><select id="category" class="field"><option>Lab</option><option>Test</option><option>Quiz</option><option>Exam</option><option>Assignment</option><option>Academic Record</option><option>Church Service</option><option>Work Shift</option><option>Internship</option><option>Important Letter</option><option>Personal Appointment</option><option>Other</option></select><label for="when">Date and time</label><input id="when" class="field" type="datetime-local" required><label for="details">Notes (optional)</label><textarea id="details" class="field" rows="2" maxlength="500" placeholder="Location, course, or other details"></textarea><button type="submit">Add event</button></form></article>
+      <article class="panel"><h2>📥 Import calendar (.ics)</h2><p>Download an ICS calendar from Moodle or SIS, then select it here. Imported events are added to your scheduler; duplicates are skipped.</p><button id="chooseICS" class="teal">Choose Moodle/SIS .ics file</button><input id="icsPicker" type="file" accept=".ics,text/calendar"><p id="importMessage" class="muted" aria-live="polite"></p><button id="exportICS" class="secondary">Export all events as .ics</button></article>
+    </section>
+    <section class="panel"><h2>🗓️ Scheduled events</h2><ul id="eventList" class="event-list"></ul></section>
+    <section class="panel"><h2>📁 Course files & documents</h2><p>Select files you have downloaded from Moodle or SIS. Files are saved in this browser's local storage (IndexedDB).</p><button id="chooseFiles">Choose files to save on this device</button><input id="filePicker" type="file" multiple><ul id="fileList" class="file-list"></ul></section>
+    <p class="muted">Alarms require this page to remain open; browser and operating-system power settings may delay them. Use your phone's calendar app for dependable background reminders.</p>
+  </main>
+<script>
+(function(){
+  'use strict';
+  var EVENTS_KEY='unza-event-ledger-events-v1', events=loadEvents(), audioContext=null, alarmTimer=null, activeAlarm=null;
+  var $=function(id){return document.getElementById(id);};
+  function loadEvents(){try{var value=JSON.parse(localStorage.getItem(EVENTS_KEY)||'[]');return Array.isArray(value)?value:[];}catch(e){return[];}}
+  function saveEvents(){try{localStorage.setItem(EVENTS_KEY,JSON.stringify(events));}catch(e){alert('Could not save events in this browser. Check available storage.');}}
+  function safeText(value){return String(value||'');}
+  function formatDate(value){var date=new Date(value);return isNaN(date.getTime())?'Invalid date':date.toLocaleString();}
+  function escapeICS(value){return safeText(value).replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');}
+  function makeId(){return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9);}
+  function renderEvents(){var list=$('eventList');list.textContent='';var sorted=events.slice().sort(function(a,b){return new Date(a.when)-new Date(b.when);});if(!sorted.length){var empty=document.createElement('li');empty.className='empty';empty.textContent='No events yet. Add one above or import an .ics calendar.';list.appendChild(empty);return;}sorted.forEach(function(event){var li=document.createElement('li');li.className='row';var main=document.createElement('div');main.className='row-main';var title=document.createElement('div');title.className='row-title';title.textContent=event.title;var category=document.createElement('span');category.className='badge'+(event.source?' imported':'');category.textContent=event.category||'Other';title.prepend(category);var meta=document.createElement('small');meta.textContent=formatDate(event.when)+(event.details?' · '+event.details:'');main.append(title,meta);var actions=document.createElement('div');actions.className='row-actions';var alarm=document.createElement('button');alarm.className='teal';alarm.textContent='Phone alarm (.ics)';alarm.setAttribute('aria-label','Export alarm for '+event.title);alarm.addEventListener('click',function(){downloadICS([event],event.title);});var remove=document.createElement('button');remove.className='danger';remove.textContent='Delete';remove.addEventListener('click',function(){events=events.filter(function(item){return item.id!==event.id;});saveEvents();renderEvents();});actions.append(alarm,remove);li.append(main,actions);list.appendChild(li);});}
+  $('eventForm').addEventListener('submit',function(e){e.preventDefault();var date=new Date($('when').value);if(isNaN(date.getTime()))return;events.push({id:makeId(),title:$('title').value.trim(),category:$('category').value,when:date.toISOString(),details:$('details').value.trim(),source:''});saveEvents();renderEvents();this.reset();});
+  function parseICS(text){var unfolded=text.replace(/\r?\n[ \t]/g,'').split(/\r?\n/),items=[],item=null;unfolded.forEach(function(line){if(line==='BEGIN:VEVENT'){item={};return;}if(line==='END:VEVENT'&&item){var start=item.DTSTART;if(start){var dt=start.split(':').pop(), date;if(/^\d{8}$/.test(dt))date=new Date(dt.slice(0,4)+'-'+dt.slice(4,6)+'-'+dt.slice(6,8)+'T00:00:00');else if(/^\d{8}T\d{6}Z?$/.test(dt)){date=new Date(dt.slice(0,4)+'-'+dt.slice(4,6)+'-'+dt.slice(6,8)+'T'+dt.slice(9,11)+':'+dt.slice(11,13)+':'+dt.slice(13,15)+(dt.endsWith('Z')?'Z':''));}else date=new Date(dt);if(!isNaN(date.getTime()))items.push({title:(item.SUMMARY||'Imported event').replace(/\\([nN])/g,' ').replace(/\\([,;\\])/g,'$1'),when:date.toISOString(),details:(item.DESCRIPTION||'').replace(/\\n/g,' ').replace(/\\,/g,',').slice(0,500)});}item=null;return;}if(item){var colon=line.indexOf(':');if(colon>0){var key=line.slice(0,colon).split(';')[0].toUpperCase();if(key==='DTSTART'||key==='SUMMARY'||key==='DESCRIPTION')item[key]=line.slice(colon+1);}}});return items;}
+  $('chooseICS').addEventListener('click',function(){$('icsPicker').click();});
+  $('icsPicker').addEventListener('change',function(){var file=this.files&&this.files[0];if(!file)return;if(file.size>5*1024*1024){$('importMessage').textContent='The calendar file is too large (maximum 5 MB).';this.value='';return;}var reader=new FileReader();reader.onload=function(){try{var parsed=parseICS(String(reader.result||'')),added=0;parsed.forEach(function(item){var duplicate=events.some(function(old){return old.title===item.title&&old.when===item.when;});if(!duplicate){events.push({id:makeId(),title:item.title,category:'Other',when:item.when,details:item.details,source:'ics'});added++;}});saveEvents();renderEvents();$('importMessage').textContent=added+' event(s) imported from '+file.name+'.'+(parsed.length?'':' No valid DTSTART events were found.');}catch(e){$('importMessage').textContent='Could not read this calendar. Please choose a valid .ics file.';}};reader.onerror=function(){$('importMessage').textContent='Could not read the selected file.';};reader.readAsText(file);this.value='';});
+  function downloadICS(items,label){var lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//UNZA Event Ledger//EN','CALSCALE:GREGORIAN'];items.forEach(function(item){var date=new Date(item.when);if(isNaN(date.getTime()))return;var stamp=date.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');lines.push('BEGIN:VEVENT','UID:'+safeText(item.id||makeId())+'@unza-event-ledger','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,''),'DTSTART:'+stamp,'SUMMARY:'+escapeICS(item.title),'DESCRIPTION:'+escapeICS(item.details||''),'BEGIN:VALARM','TRIGGER:-PT0M','ACTION:DISPLAY','DESCRIPTION:'+escapeICS(item.title),'END:VALARM','END:VEVENT');});lines.push('END:VCALENDAR');var blob=new Blob([lines.join('\r\n')],{type:'text/calendar;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(safeText(label).replace(/[^a-z0-9-_]+/gi,'-').slice(0,50)||'unza-events')+'.ics';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
+  $('exportICS').addEventListener('click',function(){downloadICS(events,'unza-events');});
+  function ring(){if(!audioContext)return;try{var now=audioContext.currentTime,osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type='triangle';osc.frequency.setValueAtTime(880,now);osc.frequency.setValueAtTime(660,now+.22);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.25,now+.03);gain.gain.exponentialRampToValueAtTime(.0001,now+.48);osc.connect(gain);gain.connect(audioContext.destination);osc.start(now);osc.stop(now+.5);}catch(e){}}
+  function checkAlarms(){if(activeAlarm)return;var now=Date.now();var due=events.find(function(event){return !event.alarmedAt&&new Date(event.when).getTime()<=now&&new Date(event.when).getTime()>now-60000;});if(due){due.alarmedAt=new Date().toISOString();saveEvents();activeAlarm=due;$('alarmText').textContent='⏰ '+due.title+' — '+formatDate(due.when);$('alarmBanner').classList.add('show');ring();alarmTimer=setInterval(ring,1200);if('Notification'in window&&Notification.permission==='granted'){try{new Notification('UNZA Event Ledger: '+due.title,{body:formatDate(due.when)});}catch(e){}}}}
+  $('activateAlarm').addEventListener('click',async function(){try{var Audio=window.AudioContext||window.webkitAudioContext;if(Audio){audioContext=audioContext||new Audio();await audioContext.resume();ring();}if('Notification'in window&&Notification.permission==='default')await Notification.requestPermission();$('alarmStatus').textContent='Alarms activated. Keep this page open; scheduled events are checked every 15 seconds.';this.textContent='Alarm active';this.disabled=true;}catch(e){$('alarmStatus').textContent='Audio could not be activated. Check browser permissions and try again.';} });
+  $('stopAlarm').addEventListener('click',function(){if(alarmTimer)clearInterval(alarmTimer);alarmTimer=null;activeAlarm=null;$('alarmBanner').classList.remove('show');});
+  setInterval(checkAlarms,15000);renderEvents();
+  var DB='unza-event-ledger-files-v1',dbPromise;
+  function openDB(){if(!('indexedDB'in window))return Promise.reject(new Error('IndexedDB unavailable'));if(dbPromise)return dbPromise;dbPromise=new Promise(function(resolve,reject){var request=indexedDB.open(DB,1);request.onupgradeneeded=function(){request.result.createObjectStore('files',{keyPath:'id'});};request.onsuccess=function(){resolve(request.result);};request.onerror=function(){reject(request.error);};});return dbPromise;}
+  function fileTransaction(mode,operation){return openDB().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction('files',mode),store=tx.objectStore('files'),request=operation(store);if(request){request.onsuccess=function(){resolve(request.result);};request.onerror=function(){reject(request.error);};}else{tx.oncomplete=function(){resolve();};tx.onerror=function(){reject(tx.error);};}});});}
+  function renderFiles(){fileTransaction('readonly',function(store){return store.getAll();}).then(function(files){var list=$('fileList');list.textContent='';if(!files.length){var empty=document.createElement('li');empty.className='empty';empty.textContent='No files saved on this device yet.';list.appendChild(empty);return;}files.sort(function(a,b){return a.name.localeCompare(b.name);}).forEach(function(file){var li=document.createElement('li');li.className='row';var label=document.createElement('div');label.className='row-title';label.textContent=file.name;var meta=document.createElement('small');meta.textContent=(file.size/1024).toFixed(1)+' KB · '+new Date(file.added).toLocaleString();label.appendChild(meta);var actions=document.createElement('div');actions.className='row-actions';var download=document.createElement('button');download.textContent='Download';download.addEventListener('click',function(){var url=URL.createObjectURL(file.data),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(function(){URL.revokeObjectURL(url);},1000);});var remove=document.createElement('button');remove.textContent='Delete';remove.className='danger';remove.addEventListener('click',function(){fileTransaction('readwrite',function(store){return store.delete(file.id);}).then(renderFiles).catch(showFileError);});actions.append(download,remove);li.append(label,actions);list.appendChild(li);});}).catch(showFileError);}
+  function showFileError(){var message=document.createElement('p');message.className='notice';message.textContent='Local file storage is unavailable or full in this browser. Try a smaller file or another browser.';$('fileList').replaceChildren(message);}
+  $('chooseFiles').addEventListener('click',function(){$('filePicker').click();});$('filePicker').addEventListener('change',function(){var files=Array.from(this.files||[]);if(files.some(function(file){return file.size>25*1024*1024;})){alert('Each file must be 25 MB or smaller.');this.value='';return;}Promise.all(files.map(function(file){return fileTransaction('readwrite',function(store){return store.put({id:makeId(),name:file.name,size:file.size,type:file.type,added:new Date().toISOString(),data:file});});})).then(renderFiles).catch(showFileError);this.value='';});renderFiles();
+})();
+</script>
+</body>
+</html>
