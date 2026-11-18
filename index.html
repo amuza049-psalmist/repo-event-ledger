@@ -3,211 +3,1313 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Event Ledger — UNZA Student Login &amp; Portal</title>
+  <meta name="theme-color" content="#0d1117" />
+  <title>Event Ledger — UNZA Student Portal</title>
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    :root {
+      color-scheme: dark;
+      --page: #0d1117;
+      --surface: #161b22;
+      --surface-dark: #0d1117;
+      --border: #30363d;
+      --text: #f0f6fc;
+      --muted: #a8b2bd;
+      --green: #238636;
+      --green-hover: #2ea043;
+      --teal: #0d9488;
+      --orange: #f97316;
+      --red: #da3633;
+      --blue: #0969da;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
     body {
       min-height: 100vh;
-      background-color: #0d1117;
-      background-image: linear-gradient(rgba(10, 15, 25, 0.72), rgba(10, 15, 25, 0.85)), url('unza.jpg');
+      background-color: var(--page);
+      background-image:
+        linear-gradient(rgba(10, 15, 25, 0.72), rgba(10, 15, 25, 0.85)),
+        url("unza.jpg");
       background-repeat: no-repeat;
-      background-position: center center;
-      background-attachment: fixed;
+      background-position: center;
       background-size: cover;
-      color: #f0f6fc;
+      color: var(--text);
       padding: 20px;
     }
 
-    .auth-wrapper {
-      min-height: 90vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .auth-card {
-      background: rgba(22, 27, 34, 0.95);
-      border: 1px solid #30363d;
-      border-radius: 12px;
-      padding: 28px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.65);
-    }
-    .auth-card h2 { text-align: center; margin-bottom: 6px; font-size: 1.6rem; }
-    .auth-card p.sub { text-align: center; color: #8b949e; font-size: 0.88rem; margin-bottom: 18px; }
-    .auth-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
-    .tab-btn {
-      flex: 1; padding: 10px; border: 1px solid #30363d; background: #0d1117;
-      color: #8b949e; border-radius: 6px; cursor: pointer; font-weight: bold;
-    }
-    .tab-btn.active { background: #238636; color: white; border-color: #238636; }
-    .rule-hint { font-size: 0.78rem; color: #99f6e4; margin: -4px 0 12px 2px; }
-    .error-msg {
-      background: rgba(218, 54, 51, 0.25); border: 1px solid #da3633; color: #ffa198;
-      padding: 9px 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 12px; display: none;
+    button,
+    input,
+    select {
+      font: inherit;
     }
 
-    .container { max-width: 1180px; margin: 0 auto; display: none; }
+    button,
+    a,
+    input,
+    select {
+      transition:
+        border-color 150ms ease,
+        background-color 150ms ease,
+        box-shadow 150ms ease;
+    }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid #58a6ff;
+      outline-offset: 2px;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    .auth-wrapper {
+      min-height: calc(100vh - 40px);
+      display: grid;
+      place-items: center;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(22, 27, 34, 0.96);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
+    }
+
+    .auth-card h1 {
+      margin-bottom: 6px;
+      text-align: center;
+      font-size: 1.6rem;
+    }
+
+    .auth-card .sub {
+      margin-bottom: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface-dark);
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .tab-btn.active {
+      border-color: var(--green);
+      background: var(--green);
+      color: white;
+    }
+
+    .auth-card label {
+      display: block;
+      margin-bottom: 5px;
+      color: #c9d1d9;
+      font-size: 0.86rem;
+    }
+
+    .rule-hint {
+      margin: -2px 0 12px 2px;
+      color: #99f6e4;
+      font-size: 0.78rem;
+    }
+
+    .error-msg {
+      display: none;
+      margin-bottom: 12px;
+      padding: 9px 12px;
+      border: 1px solid var(--red);
+      border-radius: 6px;
+      background: rgba(218, 54, 51, 0.25);
+      color: #ffa198;
+      font-size: 0.85rem;
+    }
+
+    .container {
+      display: none;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
     header {
-      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
-      margin-bottom: 20px; gap: 12px; border-bottom: 1px solid #30363d; padding-bottom: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
     }
-    header h1 { font-size: 1.9rem; }
-    header p { color: #c9d1d9; font-size: 0.9rem; }
+
+    header h1 {
+      font-size: 1.9rem;
+    }
+
+    header p {
+      color: #c9d1d9;
+      font-size: 0.9rem;
+    }
+
     .user-pill {
-      display: flex; align-items: center; gap: 10px; background: rgba(22, 27, 34, 0.9);
-      padding: 8px 14px; border-radius: 8px; border: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(22, 27, 34, 0.9);
     }
+
+    .logout-btn,
+    .del-btn,
+    .sync-btn,
+    .stop-alarm-btn,
+    .enable-btn {
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
     .logout-btn {
-      background: #da3633; color: white; border: none; padding: 6px 12px;
-      border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.82rem;
+      padding: 6px 12px;
+      background: var(--red);
+      font-size: 0.82rem;
+    }
+
+    .nav-buttons,
+    .alarm-actions,
+    .moodle-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .nav-buttons {
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 20px;
+      justify-content: center;
+      margin-bottom: 20px;
     }
+
     .nav-btn {
-      padding: 9px 15px; border: none; border-radius: 6px; font-weight: 600;
-      color: white; cursor: pointer; text-decoration: none; font-size: 0.88rem;
+      padding: 9px 15px;
+      border-radius: 6px;
+      color: white;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
     }
+
     .btn-records { background: #2ea44f; }
-    .btn-files { background: #0969da; }
+    .btn-files { background: var(--blue); }
     .btn-tests { background: #8250df; }
     .btn-quizzes { background: #bf8700; }
     .btn-labs { background: #cf222e; }
     .btn-exams { background: #a40e26; }
-    .btn-other { background: #0d9488; }
-    .btn-moodle { background: #f97316; }
+    .btn-other { background: var(--teal); }
+    .btn-moodle { background: var(--orange); }
+
+    .alarm-status-bar,
+    .moodle-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+      border-radius: 10px;
+    }
 
     .alarm-status-bar {
-      background: rgba(13, 148, 136, 0.2); border: 1px solid #0d9488; border-radius: 8px;
-      padding: 12px 18px; margin-bottom: 18px; display: flex; flex-wrap: wrap;
-      justify-content: space-between; align-items: center; gap: 10px;
+      padding: 12px 18px;
+      border: 1px solid var(--teal);
+      background: rgba(13, 148, 136, 0.2);
     }
-    .alarm-status-bar span { font-size: 0.9rem; color: #99f6e4; }
+
+    .alarm-status-bar span {
+      color: #99f6e4;
+      font-size: 0.9rem;
+    }
+
     .enable-btn {
-      background: #0d9488; color: white; border: none; padding: 8px 14px;
-      border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;
+      padding: 8px 14px;
+      background: var(--teal);
+      font-size: 0.85rem;
+    }
+
+    .test-ring-btn {
+      background: #374151;
     }
 
     .moodle-bar {
-      background: rgba(249, 115, 22, 0.16); border: 1px solid #f97316; border-radius: 10px;
-      padding: 14px 18px; margin-bottom: 22px; display: flex; flex-wrap: wrap;
-      justify-content: space-between; align-items: center; gap: 12px;
-    }
-    .moodle-bar h3 { color: #fdba74; font-size: 1rem; margin-bottom: 3px; }
-    .moodle-bar p { font-size: 0.84rem; color: #e2e8f0; }
-    .moodle-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .moodle-link {
-      background: #f97316; color: white; padding: 8px 13px; border-radius: 6px;
-      text-decoration: none; font-weight: 600; font-size: 0.85rem;
+      margin-bottom: 22px;
+      padding: 14px 18px;
+      border: 1px solid var(--orange);
+      background: rgba(249, 115, 22, 0.16);
     }
 
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-    @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+    .moodle-bar h2 {
+      margin-bottom: 3px;
+      color: #fdba74;
+      font-size: 1rem;
+    }
+
+    .moodle-bar p {
+      color: #e2e8f0;
+      font-size: 0.84rem;
+    }
+
+    .moodle-link {
+      padding: 8px 13px;
+      border-radius: 6px;
+      background: var(--orange);
+      color: white;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
 
     .card {
-      background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d;
-      border-radius: 10px; padding: 18px;
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(22, 27, 34, 0.92);
     }
-    .card h2 { font-size: 1.12rem; margin-bottom: 12px; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
-    input, select, button.action-btn {
-      width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 6px;
-      border: 1px solid #30363d; background: #0d1117; color: #f0f6fc; font-size: 0.9rem;
-    }
-    button.action-btn { background: #238636; border: none; font-weight: bold; cursor: pointer; }
-    button.action-btn:hover { background: #2ea043; }
-    button.btn-teal { background: #0d9488; }
 
-    ul { list-style: none; margin-top: 8px; max-height: 360px; overflow-y: auto; }
+    .card h2 {
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 1.12rem;
+    }
+
+    input,
+    select,
+    button.action-btn {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface-dark);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    button.action-btn {
+      border: none;
+      background: var(--green);
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button.action-btn:hover {
+      background: var(--green-hover);
+    }
+
+    button.btn-teal {
+      background: var(--teal);
+    }
+
+    ul {
+      max-height: 360px;
+      margin-top: 8px;
+      list-style: none;
+      overflow-y: auto;
+    }
+
     li {
-      background: #0d1117; border: 1px solid #30363d; padding: 10px;
-      border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface-dark);
     }
-    .badge { font-size: 0.7rem; padding: 2px 7px; border-radius: 12px; background: #1f6feb; margin-right: 5px; display: inline-block; }
-    .badge-moodle { background: #f97316; }
-    .badge-other { background: #0d9488; }
-    .item-actions { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+
+    .item-content {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-right: 5px;
+      padding: 2px 7px;
+      border-radius: 12px;
+      background: #1f6feb;
+      font-size: 0.7rem;
+    }
+
+    .badge-moodle {
+      background: var(--orange);
+    }
+
+    .badge-other {
+      background: var(--teal);
+    }
+
+    .item-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
     .del-btn {
-      background: #da3633; color: white; border: none; padding: 4px 8px;
-      border-radius: 4px; cursor: pointer; font-size: 0.76rem;
+      padding: 4px 8px;
+      background: var(--red);
+      font-size: 0.76rem;
     }
+
     .sync-btn {
-      background: #2563eb; color: white; border: none; padding: 4px 8px;
-      border-radius: 4px; cursor: pointer; font-size: 0.74rem; text-decoration: none;
+      padding: 4px 8px;
+      background: #2563eb;
+      text-decoration: none;
+      font-size: 0.74rem;
     }
+
     .alarm-banner {
-      display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-      background: #cf222e; color: white; padding: 18px 26px; border-radius: 10px;
-      font-weight: bold; font-size: 1.05rem; box-shadow: 0 6px 25px rgba(0,0,0,0.7);
-      z-index: 9999; text-align: center; border: 2px solid #fca5a5;
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: calc(100% - 40px);
+      padding: 18px 26px;
+      border: 2px solid #fca5a5;
+      border-radius: 10px;
+      background: #cf222e;
+      color: white;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.7);
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: bold;
+    }
+
+    .stop-alarm-btn {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: white;
+      color: #cf222e;
+    }
+
+    @media (max-width: 960px) {
+      body {
+        padding: 12px;
+      }
+
+      .auth-wrapper {
+        min-height: calc(100vh - 24px);
+      }
+
+      .auth-card {
+        padding: 20px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .alarm-actions,
+      .moodle-actions {
+        width: 100%;
+      }
+
+      header h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .nav-buttons,
+      .alarm-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .nav-btn,
+      .enable-btn,
+      .moodle-link {
+        width: 100%;
+        text-align: center;
+      }
+
+      .alarm-banner {
+        width: calc(100% - 24px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
     }
   </style>
 </head>
+
 <body>
-  <div id="alarmBanner" class="alarm-banner">
-    🔔 ALARM RINGING: <span id="alarmText"></span><br/>
-    <button type="button" id="stopAlarmBtn" style="margin-top:10px; padding:6px 16px; border:none; border-radius:6px; background:white; color:#cf222e; font-weight:bold; cursor:pointer;">STOP ALARM</button>
+  <div
+    id="alarmBanner"
+    class="alarm-banner"
+    role="alert"
+    aria-live="assertive"
+  >
+    🔔 ALARM RINGING:
+    <span id="alarmText"></span>
+
+    <br />
+    <button type="button" id="stopAlarmBtn" class="stop-alarm-btn">
+      Stop alarm
+    </button>
   </div>
 
-  <!-- LOGIN / REGISTER SCREEN -->
-  <div id="authScreen" class="auth-wrapper">
-    <div class="auth-card">
-      <h2>🎓 Event Ledger</h2>
+  <main id="authScreen" class="auth-wrapper">
+    <section class="auth-card" aria-labelledby="authTitle">
+      <h1 id="authTitle">🎓 Event Ledger</h1>
       <p class="sub">University of Zambia — Student &amp; Personal Portal</p>
 
-      <div class="auth-tabs">
-        <button type="button" id="loginTabBtn" class="tab-btn active">Sign In</button>
-        <button type="button" id="regTabBtn" class="tab-btn">Create Account</button>
+      <div class="auth-tabs" role="tablist" aria-label="Account access">
+        <button
+          type="button"
+          id="loginTabBtn"
+          class="tab-btn active"
+          role="tab"
+          aria-selected="true"
+        >
+          Sign in
+        </button>
+
+        <button
+          type="button"
+          id="regTabBtn"
+          class="tab-btn"
+          role="tab"
+          aria-selected="false"
+        >
+          Create account
+        </button>
       </div>
 
-      <div id="authError" class="error-msg"></div>
+      <div
+        id="authError"
+        class="error-msg"
+        role="alert"
+        aria-live="assertive"
+      ></div>
 
-      <input type="text" id="authUsername" maxlength="10" placeholder="10-Digit Student ID (starts with 2)" />
-      <div class="rule-hint">• Username: Exactly 10 digits starting with <strong>2</strong> (e.g., 2024067832)</div>
+      <form id="authForm" novalidate>
+        <label for="authUsername">Student ID</label>
+        <input
+          type="text"
+          id="authUsername"
+          name="username"
+          minlength="10"
+          maxlength="10"
+          inputmode="numeric"
+          autocomplete="username"
+          pattern="[2][0-9]{9}"
+          placeholder="10-digit student ID"
+          aria-describedby="usernameHint"
+          required
+        />
+        <div id="usernameHint" class="rule-hint">
+          Exactly 10 digits starting with <strong>2</strong>,
+          for example <strong>2024067832</strong>.
+        </div>
 
-      <input type="password" id="authPassword" placeholder="Password (starts with unza...)" />
-      <div class="rule-hint">• Password: Must start with <strong>unza</strong> and be at least 4 characters long</div>
+        <label for="authPassword">Password</label>
+        <input
+          type="password"
+          id="authPassword"
+          name="password"
+          minlength="8"
+          autocomplete="current-password"
+          placeholder="Enter your password"
+          aria-describedby="passwordHint"
+          required
+        />
+        <div id="passwordHint" class="rule-hint">
+          Use at least 8 characters and do not reuse a real account password.
+        </div>
 
-      <button type="button" id="authSubmitBtn" class="action-btn">Sign In to Event Ledger</button>
-    </div>
-  </div>
+        <button type="submit" id="authSubmitBtn" class="action-btn">
+          Sign in to Event Ledger
+        </button>
+      </form>
+    </section>
+  </main>
 
-  <!-- MAIN EVENT LEDGER APP -->
   <div id="appContainer" class="container">
     <header>
       <div>
         <h1>Welcome to Event Ledger</h1>
         <p>UNZA Academic Portal &amp; Personal Life Scheduler</p>
       </div>
+
       <div class="user-pill">
         <span>👤 ID: <strong id="currentUserDisplay"></strong></span>
-        <button type="button" id="logoutBtn" class="logout-btn">Logout</button>
+        <button type="button" id="logoutBtn" class="logout-btn">
+          Logout
+        </button>
       </div>
     </header>
 
-    <div class="nav-buttons">
-      <a href="https://github.com" class="nav-btn btn-records">Academic Records</a>
+    <nav class="nav-buttons" aria-label="Portal sections">
+      <a href="#academicRecordsSection" class="nav-btn btn-records">
+        Academic Records
+      </a>
       <a href="#filesSection" class="nav-btn btn-files">Files</a>
-      <a href="https://github.com" class="nav-btn btn-tests">Tests</a>
-      <a href="https://github.com" class="nav-btn btn-quizzes">Quizzes</a>
-      <a href="https://github.com" class="nav-btn btn-labs">Labs</a>
-      <a href="https://github.com" class="nav-btn btn-exams">Exams</a>
+      <a href="#testsSection" class="nav-btn btn-tests">Tests</a>
+      <a href="#quizzesSection" class="nav-btn btn-quizzes">Quizzes</a>
+      <a href="#labsSection" class="nav-btn btn-labs">Labs</a>
+      <a href="#examsSection" class="nav-btn btn-exams">Exams</a>
       <a href="#otherEventsSection" class="nav-btn btn-other">Other Events</a>
-      <a href="https://moodle.unza.zm" target="_blank" class="nav-btn btn-moodle">UNZA Moodle</a>
-    </div>
 
-    <div class="alarm-status-bar">
-      <span id="audioStatus">🔊 <strong>Device Ringtone:</strong> Click "Activate Device Alarm" once so your phone/PC rings loud without delay.</span>
-      <div style="display:flex; gap:8px;">
-        <button type="button" id="activateAlarmBtn" class="enable-btn">Activate Device Alarm</button>
-        <button type="button" id="testRingBtn" class="enable-btn" style="background:#374151;">Test Ring</button>
+      <a
+        href="https://moodle.unza.zm"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="nav-btn btn-moodle"
+      >
+        UNZA Moodle
+      </a>
+    </nav>
+
+    <section class="alarm-status-bar" aria-label="Alarm settings">
+      <span id="audioStatus" aria-live="polite">
+        🔊 <strong>Device Alarm:</strong>
+        Activate the alarm once so events can notify you.
+      </span>
+
+      <div class="alarm-actions">
+        <button type="button" id="activateAlarmBtn" class="enable-btn">
+          Activate Device Alarm
+        </button>
+        <button type="button" id="testRingBtn" class="enable-btn test-ring-btn">
+          Test Ring
+        </button>
       </div>
-    </div>
+    </section>
 
-    <div class="moodle-bar">
+    <section class="moodle-bar" aria-labelledby="moodleTitle">
       <div>
-        <h3>🎓 Direct UNZA Moodle Academic Sync</h3>
-        <p>1. Export your Moodle Calendar (.ics) &nbsp;→&nbsp; 2. Import here to auto-schedule Labs, Tests &amp; Exams with alarms.</p>
+        <h2 id="moodleTitle">🎓 UNZA Moodle Calendar Import</h2>
+        <p>
+          Export your Moodle calendar as an <strong>.ics</strong> file,
+          then import it below.
+        </p>
       </div>
+
       <div class="moodle-actions">
+        <label for="icsFile" class="moodle-link">Import .ics calendar</label>
+        <input
+          type="file"
+          id="icsFile"
+          accept=".ics,text/calendar"
+          hidden
+        />
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card" id="academicRecordsSection">
+        <h2>Academic Records</h2>
+
+        <label for="courseName">Course name</label>
+        <input type="text" id="courseName" placeholder="Example: CSC 2000" />
+
+        <label for="courseGrade">Grade or result</label>
+        <input type="text" id="courseGrade" placeholder="Example: A" />
+
+        <button type="button" id="addRecordBtn" class="action-btn">
+          Add Academic Record
+        </button>
+
+        <ul id="recordsList" aria-label="Academic records"></ul>
+      </section>
+
+      <section class="card" id="filesSection">
+        <h2>Study Files</h2>
+
+        <label for="fileName">File name or description</label>
+        <input type="text" id="fileName" placeholder="Example: Lecture notes" />
+
+        <button type="button" id="addFileBtn" class="action-btn">
+          Add File Entry
+        </button>
+
+        <ul id="filesList" aria-label="Study files"></ul>
+      </section>
+
+      <section class="card" id="otherEventsSection">
+        <h2>Events &amp; Reminders</h2>
+
+        <label for="eventTitle">Event title</label>
+        <input type="text" id="eventTitle" placeholder="Event title" />
+
+        <label for="eventDateTime">Date and time</label>
+        <input type="datetime-local" id="eventDateTime" />
+
+        <label for="eventCategory">Category</label>
+        <select id="eventCategory">
+          <option value="Other">Other</option>
+          <option value="Test">Test</option>
+          <option value="Quiz">Quiz</option>
+          <option value="Lab">Lab</option>
+          <option value="Exam">Exam</option>
+        </select>
+
+        <button type="button" id="addEventBtn" class="action-btn">
+          Add Event
+        </button>
+
+        <ul id="eventsList" aria-label="Upcoming events"></ul>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const STORAGE_KEY = "eventLedgerData";
+    const USER_KEY = "eventLedgerUser";
+    const REGISTERED_KEY = "eventLedgerRegisteredUsers";
+
+    const authScreen = document.querySelector("#authScreen");
+    const appContainer = document.querySelector("#appContainer");
+    const authForm = document.querySelector("#authForm");
+    const authUsername = document.querySelector("#authUsername");
+    const authPassword = document.querySelector("#authPassword");
+    const authError = document.querySelector("#authError");
+    const authSubmitBtn = document.querySelector("#authSubmitBtn");
+    const loginTabBtn = document.querySelector("#loginTabBtn");
+    const regTabBtn = document.querySelector("#regTabBtn");
+    const currentUserDisplay = document.querySelector("#currentUserDisplay");
+
+    let authMode = "login";
+    let alarmAudioContext = null;
+    let alarmTimer = null;
+
+    function readJson(key, fallback) {
+      try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function writeJson(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function getUserData(username) {
+      return readJson(`${STORAGE_KEY}:${username}`, {
+        records: [],
+        files: [],
+        events: []
+      });
+    }
+
+    function saveUserData(username, data) {
+      writeJson(`${STORAGE_KEY}:${username}`, data);
+    }
+
+    function showAuthError(message) {
+      authError.textContent = message;
+      authError.style.display = "block";
+    }
+
+    function clearAuthError() {
+      authError.textContent = "";
+      authError.style.display = "none";
+    }
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      clearAuthError();
+
+      const isRegistration = mode === "register";
+
+      loginTabBtn.classList.toggle("active", !isRegistration);
+      regTabBtn.classList.toggle("active", isRegistration);
+      loginTabBtn.setAttribute("aria-selected", String(!isRegistration));
+      regTabBtn.setAttribute("aria-selected", String(isRegistration));
+
+      authPassword.autocomplete =
+        isRegistration ? "new-password" : "current-password";
+
+      authSubmitBtn.textContent =
+        isRegistration
+          ? "Create Event Ledger Account"
+          : "Sign in to Event Ledger";
+    }
+
+    loginTabBtn.addEventListener("click", () => setAuthMode("login"));
+    regTabBtn.addEventListener("click", () => setAuthMode("register"));
+
+    authForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      clearAuthError();
+
+      if (!authForm.checkValidity()) {
+        showAuthError("Enter a valid student ID and an 8-character password.");
+        authForm.reportValidity();
+        return;
+      }
+
+      const username = authUsername.value.trim();
+      const password = authPassword.value;
+      const users = readJson(REGISTERED_KEY, {});
+      const hash = simpleDemoHash(password);
+
+      if (authMode === "register") {
+        if (users[username]) {
+          showAuthError("This student ID already has an account.");
+          return;
+        }
+
+        users[username] = hash;
+        writeJson(REGISTERED_KEY, users);
+        localStorage.setItem(USER_KEY, username);
+      } else {
+        if (!users[username] || users[username] !== hash) {
+          showAuthError("Incorrect student ID or password.");
+          return;
+        }
+
+        localStorage.setItem(USER_KEY, username);
+      }
+
+      openPortal(username);
+      authForm.reset();
+    });
+
+    document.querySelector("#logoutBtn").addEventListener("click", () => {
+      stopAlarm();
+      localStorage.removeItem(USER_KEY);
+      appContainer.style.display = "none";
+      authScreen.hidden = false;
+      authUsername.focus();
+    });
+
+    function openPortal(username) {
+      currentUserDisplay.textContent = username;
+      authScreen.hidden = true;
+      appContainer.style.display = "block";
+      renderAll();
+    }
+
+    const storedUser = localStorage.getItem(USER_KEY);
+    if (storedUser) {
+      openPortal(storedUser);
+    }
+
+    // This is only a demo hash for browser storage, not secure authentication.
+    function simpleDemoHash(value) {
+      let hash = 2166136261;
+
+      for (let index = 0; index < value.length; index += 1) {
+        hash ^= value.charCodeAt(index);
+        hash = Math.imul(hash, 16777619);
+      }
+
+      return (hash >>> 0).toString(16);
+    }
+
+    function escapeHtml(value) {
+      const element = document.createElement("span");
+      element.textContent = String(value);
+      return element.innerHTML;
+    }
+
+    const recordsList = document.querySelector("#recordsList");
+    const filesList = document.querySelector("#filesList");
+    const eventsList = document.querySelector("#eventsList");
+
+    function getCurrentUser() {
+      return localStorage.getItem(USER_KEY) || "";
+    }
+
+    function renderAll() {
+      renderRecords();
+      renderFiles();
+      renderEvents();
+    }
+
+    function renderRecords() {
+      const username = getCurrentUser();
+      const data = getUserData(username);
+
+      recordsList.innerHTML = data.records.length
+        ? data.records.map((record, index) => `
+            <li>
+              <div class="item-content">
+                <span class="badge">Record</span>
+                <strong>${escapeHtml(record.name)}</strong>
+                — ${escapeHtml(record.grade)}
+              </div>
+              <div class="item-actions">
+                <button
+                  type="button"
+                  class="del-btn"
+                  data-delete-record="${index}"
+                  aria-label="Delete ${escapeHtml(record.name)}"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          `).join("")
+        : "<li>No academic records added.</li>";
+    }
+
+    function renderFiles() {
+      const username = getCurrentUser();
+      const data = getUserData(username);
+
+      filesList.innerHTML = data.files.length
+        ? data.files.map((file, index) => `
+            <li>
+              <div class="item-content">
+                <span class="badge">File</span>
+                ${escapeHtml(file.name)}
+              </div>
+              <div class="item-actions">
+                <button
+                  type="button"
+                  class="del-btn"
+                  data-delete-file="${index}"
+                  aria-label="Delete ${escapeHtml(file.name)}"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          `).join("")
+        : "<li>No study files added.</li>";
+    }
+
+    function renderEvents() {
+      const username = getCurrentUser();
+      const data = getUserData(username);
+
+      const sortedEvents = [...data.events].sort(
+        (a, b) => new Date(a.dateTime) - new Date(b.dateTime)
+      );
+
+      eventsList.innerHTML = sortedEvents.length
+        ? sortedEvents.map((event) => {
+            const originalIndex = data.events.findIndex(
+              item =>
+                item.id === event.id
+            );
+
+            return `
+              <li>
+                <div class="item-content">
+                  <span class="badge">${escapeHtml(event.category)}</span>
+                  <strong>${escapeHtml(event.title)}</strong>
+                  <br />
+                  <small>${formatDate(event.dateTime)}</small>
+                </div>
+                <div class="item-actions">
+                  <button
+                    type="button"
+                    class="del-btn"
+                    data-delete-event="${originalIndex}"
+                    aria-label="Delete ${escapeHtml(event.title)}"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            `;
+          }).join("")
+        : "<li>No events scheduled.</li>";
+    }
+
+    function formatDate(value) {
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) {
+        return "Invalid date";
+      }
+
+      return new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }).format(date);
+    }
+
+    document.querySelector("#addRecordBtn").addEventListener("click", () => {
+      const nameInput = document.querySelector("#courseName");
+      const gradeInput = document.querySelector("#courseGrade");
+      const name = nameInput.value.trim();
+      const grade = gradeInput.value.trim();
+
+      if (!name || !grade) {
+        alert("Enter both a course name and grade.");
+        return;
+      }
+
+      const username = getCurrentUser();
+      const data = getUserData(username);
+      data.records.push({ name, grade });
+      saveUserData(username, data);
+
+      nameInput.value = "";
+      gradeInput.value = "";
+      renderRecords();
+    });
+
+    document.querySelector("#addFileBtn").addEventListener("click", () => {
+      const input = document.querySelector("#fileName");
+      const name = input.value.trim();
+
+      if (!name) {
+        alert("Enter a file name or description.");
+        return;
+      }
+
+      const username = getCurrentUser();
+      const data = getUserData(username);
+      data.files.push({ name });
+      saveUserData(username, data);
+
+      input.value = "";
+      renderFiles();
+    });
+
+    document.querySelector("#addEventBtn").addEventListener("click", () => {
+      const titleInput = document.querySelector("#eventTitle");
+      const dateInput = document.querySelector("#eventDateTime");
+      const categoryInput = document.querySelector("#eventCategory");
+
+      const title = titleInput.value.trim();
+      const dateTime = dateInput.value;
+      const category = categoryInput.value;
+
+      if (!title || !dateTime) {
+        alert("Enter an event title and date.");
+        return;
+      }
+
+      const date = new Date(dateTime);
+
+      if (Number.isNaN(date.getTime())) {
+        alert("Enter a valid date and time.");
+        return;
+      }
+
+      const username = getCurrentUser();
+      const data = getUserData(username);
+
+      data.events.push({
+        id: createId(),
+        title,
+        dateTime,
+        category
+      });
+
+      saveUserData(username, data);
+
+      titleInput.value = "";
+      dateInput.value = "";
+      categoryInput.value = "Other";
+      renderEvents();
+    });
+
+    function createId() {
+      if (window.crypto && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+
+      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    recordsList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-delete-record]");
+      if (!button) return;
+
+      const username = getCurrentUser();
+      const data = getUserData(username);
+      data.records.splice(Number(button.dataset.deleteRecord), 1);
+      saveUserData(username, data);
+      renderRecords();
+    });
+
+    filesList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-delete-file]");
+      if (!button) return;
+
+      const username = getCurrentUser();
+      const data = getUserData(username);
+      data.files.splice(Number(button.dataset.deleteFile), 1);
+      saveUserData(username, data);
+      renderFiles();
+    });
+
+    eventsList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-delete-event]");
+      if (!button) return;
+
+      const username = getCurrentUser();
+      const data = getUserData(username);
+      data.events.splice(Number(button.dataset.deleteEvent), 1);
+      saveUserData(username, data);
+      renderEvents();
+    });
+
+    document.querySelector("#activateAlarmBtn").addEventListener("click", async () => {
+      try {
+        alarmAudioContext =
+          alarmAudioContext || new (window.AudioContext || window.webkitAudioContext)();
+
+        await alarmAudioContext.resume();
+        document.querySelector("#audioStatus").textContent =
+          "🔊 Device alarm activated and ready.";
+      } catch {
+        document.querySelector("#audioStatus").textContent =
+          "⚠️ This browser could not activate audio.";
+      }
+    });
+
+    document.querySelector("#testRingBtn").addEventListener("click", () => {
+      ringAlarm("Test event");
+    });
+
+    document.querySelector("#stopAlarmBtn").addEventListener("click", stopAlarm);
+
+    function ringAlarm(text) {
+      document.querySelector("#alarmText").textContent = text;
+      document.querySelector("#alarmBanner").style.display = "block";
+
+      try {
+        if (!alarmAudioContext) {
+          alarmAudioContext =
+            new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        const oscillator = alarmAudioContext.createOscillator();
+        const gain = alarmAudioContext.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.value = 880;
+        gain.gain.value = 0.15;
+
+        oscillator.connect(gain);
+        gain.connect(alarmAudioContext.destination);
+        oscillator.start();
+        oscillator.stop(alarmAudioContext.currentTime + 0.45);
+
+        if (!alarmTimer) {
+          alarmTimer = window.setInterval(() => {
+            if (!alarmAudioContext) return;
+
+            const repeated =
+              alarmAudioContext.createOscillator();
+            const repeatedGain =
+              alarmAudioContext.createGain();
+
+            repeated.type = "sine";
+            repeated.frequency.value = 880;
+            repeatedGain.gain.value = 0.15;
+            repeated.connect(repeatedGain);
+            repeatedGain.connect(alarmAudioContext.destination);
+            repeated.start();
+            repeated.stop(alarmAudioContext.currentTime + 0.45);
+          }, 1500);
+        }
+      } catch {
+        // Visual alarm remains active even if audio is unavailable.
+      }
+    }
+
+    function stopAlarm() {
+      if (alarmTimer) {
+        clearInterval(alarmTimer);
+        alarmTimer = null;
+      }
+
+      document.querySelector("#alarmBanner").style.display = "none";
+    }
+
+    function checkForDueEvents() {
+      const username = getCurrentUser();
+      if (!username) return;
+
+      const data = getUserData(username);
+      const now = Date.now();
+
+      for (const event of data.events) {
+        const eventTime = new Date(event.dateTime).getTime();
+
+        if (
+          Number.isFinite(eventTime) &&
+          eventTime <= now &&
+          eventTime >= now - 60000
+        ) {
+          ringAlarm(event.title);
+          break;
+        }
+      }
+    }
+
+    window.setInterval(checkForDueEvents, 30000);
+
+    document.querySelector("#icsFile").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const imported = parseIcs(text);
+
+        if (!imported.length) {
+          alert("No valid calendar events were found.");
+          return;
+        }
+
+        const username = getCurrentUser();
+        const data = getUserData(username);
+
+        for (const item of imported) {
+          data.events.push({
+            id: createId(),
+            title: item.title,
+            dateTime: item.dateTime,
+            category: item.category
+          });
+        }
+
+        saveUserData(username, data);
+        renderEvents();
+        alert(`${imported.length} calendar event(s) imported.`);
+      } catch {
+        alert("The calendar file could not be read.");
+      }
+
+      event.target.value = "";
+    });
+
+    function parseIcs(text) {
+      const events = [];
+      const blocks = text
+        .replace(/\r\n/g, "\n")
+        .replace(/\n[ \t]/g, "")
+        .split("BEGIN:VEVENT");
+
+      for (const block of blocks.slice(1)) {
+        if (!block.includes("END:VEVENT")) continue;
+
+        const summaryMatch = block.match(/^SUMMARY:(.*)$/m);
+        const startMatch =
+          block.match(/^DTSTART(?:;[^:]*)?:([0-9TZ]+)/m);
+
+        if (!summaryMatch || !startMatch) continue;
+
+        const title = decodeIcsText(summaryMatch[1].trim());
+        const dateTime = parseIcsDate(startMatch[1].trim());
+
+        if (!title || !dateTime) continue;
+
+        const upperTitle = title.toUpperCase();
+        let category = "Moodle";
+
+        if (upperTitle.includes("EXAM")) category = "Exam";
+        else if (upperTitle.includes("TEST")) category = "Test";
+        else if (upperTitle.includes("QUIZ")) category = "Quiz";
+        else if (upperTitle.includes("LAB")) category = "Lab";
+
+        events.push({ title, dateTime, category });
+      }
+
+      return events;
+    }
+
+    function decodeIcsText(value) {
+      return value
+        .replace(/\\n/gi, " ")
+        .replace(/\\,/g, ",")
+        .replace(/\\;/g, ";")
+        .replace(/\\\\/g, "\\");
+    }
+
+    function parseIcsDate(value) {
+      const match = value.match(
+        /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z)?$/
+      );
+
+      if (!match) {
+        const date = new Date(value);
+        return Number.isNaNa(date) ? null : date.toISOString();
+      }
+
+      const [, year, month, day, hour, minute, second, utc] = match;
+      const date = utc
+        ? new Date(Date.UTC(
+            Number(year),
+            Number(month) - 1,
+            Number(day),
+            Number(hour),
+            Number(minute),
+            Number(second)
+          ))
+        : new Date(
+            Number(year),
+            Number(month) - 1,
+            Number(day),
+            Number(hour),
+            Number(minute),
+            Number(second)
+          );
+
+      return Number.isNaN(date.getTime())
+        ? null
+        : date.toISOString();
+    }
+  </script>
+</body>
+</html>
