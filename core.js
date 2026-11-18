@@ -1,4 +1,4 @@
-N// Pure logic for the UNZA Event Ledger: validation, formatting, ICS parsing,
+// Pure logic for the UNZA Event Ledger: validation, formatting, ICS parsing,
 // encryption helpers, and alarm scheduling. No DOM access here, so these
 // functions can run in Node for tests as well as in the browser.
 "use strict";
