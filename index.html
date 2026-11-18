@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Event Ledger — Personal File Library</title>
+  <title>Event Ledger — UNZA Student Login, Alarm Scheduler &amp; File Library</title>
   <style>
     :root {
       color-scheme: dark;
@@ -15,6 +15,9 @@
       --green: #238636;
       --blue: #0969da;
       --teal: #0d9488;
+      --orange: #f97316;
+      --purple: #8250df;
+      --red: #da3633;
     }
 
     * { box-sizing: border-box; }
@@ -27,7 +30,7 @@
       font-family: "Segoe UI", Tahoma, sans-serif;
       background-color: var(--page);
       background-image:
-        linear-gradient(rgba(10, 15, 25, 0.48), rgba(10, 15, 25, 0.72)),
+        linear-gradient(rgba(10, 15, 25, 0.55), rgba(10, 15, 25, 0.78)),
         url("unza.jpg");
       background-repeat: no-repeat;
       background-position: center;
@@ -35,15 +38,88 @@
       background-attachment: fixed;
     }
 
-    button, a { font: inherit; }
+    button, a, input, select { font: inherit; }
 
-    button:focus-visible, a:focus-visible {
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
       outline: 3px solid #58a6ff;
-      outline-offset: 3px;
+      outline-offset: 2px;
     }
 
+    /* Login & Registration Screen */
+    .auth-wrapper {
+      min-height: 90vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 430px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+    }
+
+    .auth-card h2 {
+      margin: 0 0 6px;
+      text-align: center;
+      font-size: 1.65rem;
+    }
+
+    .auth-card p.sub {
+      margin: 0 0 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #0d1117;
+      color: var(--muted);
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+    }
+
+    .rule-hint {
+      margin: -4px 0 12px 2px;
+      color: #99f6e4;
+      font-size: 0.78rem;
+    }
+
+    .error-msg {
+      display: none;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--red);
+      border-radius: 7px;
+      background: rgba(218, 54, 51, 0.22);
+      color: #ffa198;
+      font-size: 0.85rem;
+    }
+
+    /* Main Container */
     .container {
-      max-width: 1180px;
+      display: none;
+      max-width: 1200px;
       margin: 0 auto;
     }
 
@@ -53,7 +129,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       padding: 18px;
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -62,12 +138,19 @@
 
     h1 {
       margin: 0 0 6px;
-      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-size: clamp(1.45rem, 3vw, 1.95rem);
     }
 
     header p, .intro {
       margin: 0;
       color: var(--muted);
+    }
+
+    .header-right {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
     }
 
     .links, .category-nav {
@@ -79,7 +162,9 @@
     .site-link,
     .category-btn,
     .upload-btn,
-    .file-action {
+    .file-action,
+    .enable-btn,
+    .logout-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -93,34 +178,122 @@
     }
 
     .site-link {
-      padding: 10px 14px;
-      background: #f97316;
+      padding: 9px 14px;
+      background: var(--orange);
     }
 
     .site-link.sis {
-      background: #8250df;
+      background: var(--purple);
     }
 
-    .intro {
-      margin-bottom: 14px;
-      line-height: 1.5;
+    .user-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0d1117;
+      font-size: 0.88rem;
     }
 
-    .category-nav {
-      justify-content: center;
-      margin: 16px 0 20px;
+    .logout-btn {
+      padding: 6px 11px;
+      background: var(--red);
+      font-size: 0.82rem;
     }
 
-    .category-btn {
-      padding: 9px 13px;
-      background: var(--blue);
+    /* Alarm & Moodle Bars */
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 13px 18px;
+      border: 1px solid var(--teal);
+      border-radius: 10px;
+      background: rgba(13, 148, 136, 0.2);
     }
 
-    .category-btn[data-category="Tests"] { background: #8250df; }
-    .category-btn[data-category="Quizzes"] { background: #bf8700; }
-    .category-btn[data-category="Labs"] { background: #cf222e; }
-    .category-btn[data-category="Exams"] { background: #a40e26; }
-    .category-btn[data-category="Other"] { background: var(--teal); }
+    .status-bar span {
+      color: #99f6e4;
+      font-size: 0.9rem;
+    }
+
+    .enable-btn {
+      padding: 8px 14px;
+      background: var(--teal);
+      font-size: 0.85rem;
+    }
+
+    .moodle-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 14px 18px;
+      border: 1px solid var(--orange);
+      border-radius: 10px;
+      background: rgba(249, 115, 22, 0.16);
+    }
+
+    .moodle-bar h3 {
+      margin: 0 0 4px;
+      color: #fdba74;
+      font-size: 1rem;
+    }
+
+    .moodle-bar p {
+      margin: 0;
+      color: #e2e8f0;
+      font-size: 0.84rem;
+    }
+
+    /* Section Headings */
+    .section-title {
+      margin: 24px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 1.25rem;
+    }
+
+    /* Forms & Inputs */
+    .field {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #0d1117;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .upload-btn {
+      width: 100%;
+      padding: 11px;
+      background: var(--green);
+    }
+
+    .upload-btn:hover {
+      background: #2ea043;
+    }
+
+    .upload-btn.teal {
+      background: var(--teal);
+    }
+
+    /* Grids & Cards */
+    .scheduler-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
 
     .grid {
       display: grid;
@@ -142,32 +315,45 @@
       font-size: 1.12rem;
     }
 
-    .card p {
-      min-height: 2.5em;
+    .card p.desc {
+      min-height: 2.4em;
       margin: 0 0 12px;
       color: var(--muted);
       font-size: 0.88rem;
     }
 
-    .upload-btn {
-      width: 100%;
-      padding: 11px;
-      background: var(--green);
+    /* Category Jump Bar */
+    .intro {
+      margin-bottom: 12px;
+      line-height: 1.5;
     }
 
-    .upload-btn:hover {
-      background: #2ea043;
+    .category-nav {
+      justify-content: center;
+      margin: 14px 0 18px;
     }
 
-    .file-list {
-      max-height: 300px;
+    .category-btn {
+      padding: 9px 13px;
+      background: var(--blue);
+    }
+
+    .category-btn[data-category="Tests"] { background: #8250df; }
+    .category-btn[data-category="Quizzes"] { background: #bf8700; }
+    .category-btn[data-category="Labs"] { background: #cf222e; }
+    .category-btn[data-category="Exams"] { background: #a40e26; }
+    .category-btn[data-category="Other"] { background: var(--teal); }
+
+    /* Lists & Items */
+    .item-list {
+      max-height: 310px;
       margin: 12px 0 0;
       padding: 0;
       overflow-y: auto;
       list-style: none;
     }
 
-    .file-row {
+    .item-row {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
@@ -176,34 +362,53 @@
       padding: 10px;
       border: 1px solid var(--border);
       border-radius: 7px;
-      background: rgba(13, 17, 23, 0.86);
+      background: rgba(13, 17, 23, 0.88);
     }
 
-    .file-name {
+    .item-main {
       min-width: 0;
       overflow-wrap: anywhere;
+    }
+
+    .item-title {
+      font-weight: 650;
+    }
+
+    .item-meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-right: 5px;
+      margin-bottom: 4px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #1f6feb;
+      color: white;
+      font-size: 0.72rem;
       font-weight: 600;
     }
 
-    .file-meta {
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 0.76rem;
-    }
+    .badge.moodle { background: var(--orange); }
+    .badge.other { background: var(--teal); }
 
-    .file-actions {
+    .item-actions {
       display: flex;
       flex: 0 0 auto;
+      flex-direction: column;
       gap: 5px;
     }
 
     .file-action {
-      padding: 6px 8px;
-      font-size: 0.78rem;
+      padding: 6px 9px;
+      font-size: 0.76rem;
     }
 
     .download-btn { background: #2563eb; }
-    .delete-btn { background: #da3633; }
+    .delete-btn { background: var(--red); }
 
     .empty {
       color: var(--muted);
@@ -211,7 +416,7 @@
     }
 
     .notice {
-      margin: 18px 0 0;
+      margin: 20px 0 0;
       padding: 12px 14px;
       border: 1px solid #9a6700;
       border-radius: 8px;
@@ -221,395 +426,47 @@
       line-height: 1.5;
     }
 
-    #filePicker {
+    /* Full-Screen Alarm Banner */
+    .alarm-banner {
       display: none;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      padding: 18px 28px;
+      border: 2px solid #fca5a5;
+      border-radius: 12px;
+      background: #cf222e;
+      color: white;
+      font-size: 1.08rem;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75);
     }
+
+    .stop-alarm-btn {
+      margin-top: 10px;
+      padding: 7px 18px;
+      border: 0;
+      border-radius: 6px;
+      background: white;
+      color: #cf222e;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #filePicker, #icsPicker { display: none; }
 
     @media (max-width: 900px) {
       .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
+    @media (max-width: 720px) {
+      .scheduler-grid { grid-template-columns: 1fr; }
+    }
+
     @media (max-width: 600px) {
-      body {
-        padding: 12px;
-        background-attachment: scroll;
-      }
-
+      body { padding: 12px; background-attachment: scroll; }
       header { padding: 15px; }
-
       .grid { grid-template-columns: 1fr; }
-
-      .links, .links a {
-        width: 100%;
-      }
-
-      .category-nav {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .category-btn { width: 100%; }
-
-      .file-row {
-        flex-direction: column;
-      }
-    }
-  </style>
-</head>
-<body>
-  <main class="container">
-    <header>
-      <div>
-        <h1>📁 Event Ledger File Library</h1>
-        <p>Keep personal, academic, and everyday files together.</p>
-      </div>
-
-      <nav class="links" aria-label="UNZA websites">
-        <a
-          class="site-link"
-          href="https://moodle.unza.zm"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          UNZA Moodle ↗
-        </a>
-        <a
-          class="site-link sis"
-          href="https://sis.unza.zm"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          UNZA SIS ↗
-        </a>
-      </nav>
-    </header>
-
-    <p class="intro">
-      Choose a category to select files from your device. The browser opens
-      only after you click a button and will ask for your permission first.
-    </p>
-
-    <nav
-      id="categoryNav"
-      class="category-nav"
-      aria-label="Choose a category to add files"
-    ></nav>
-
-    <section
-      id="fileGrid"
-      class="grid"
-      aria-label="Your file categories"
-    ></section>
-
-    <p class="notice">
-      <strong>Private to this browser:</strong> Files are stored on this
-      device using IndexedDB. They are not uploaded to a server or shared
-      between devices. Clearing browser site data can remove them.
-    </p>
-
-    <input id="filePicker" type="file" multiple />
-  </main>
-
-  <script>
-    "use strict";
-
-    const categories = [
-      {
-        name: "Academic Records",
-        description: "Transcripts, certificates, and other records."
-      },
-      {
-        name: "Files",
-        description: "General documents and personal files."
-      },
-      {
-        name: "Tests",
-        description: "Test papers, preparation, and study materials."
-      },
-      {
-        name: "Quizzes",
-        description: "Quiz notes and related materials."
-      },
-      {
-        name: "Labs",
-        description: "Lab reports, data, and practical work."
-      },
-      {
-        name: "Exams",
-        description: "Exam papers, revision, and resources."
-      },
-      {
-        name: "Other",
-        description: "Anything that does not fit another category."
-      }
-    ];
-
-    const dbName = "eventLedgerFileLibrary";
-    const storeName = "files";
-    const picker = document.querySelector("#filePicker");
-
-    let selectedCategory = "Files";
-    let database;
-
-    function openDatabase() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open(dbName, 1);
-
-        request.onupgradeneeded = () => {
-          const db = request.result;
-
-          if (!db.objectStoreNames.contains(storeName)) {
-            const store = db.createObjectStore(storeName, {
-              keyPath: "id"
-            });
-
-            store.createIndex("category", "category", {
-              unique: false
-            });
-          }
-        };
-
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    function storeRequest(mode, operation) {
-      return new Promise((resolve, reject) => {
-        const transaction = database.transaction(storeName, mode);
-        const request = operation(transaction.objectStore(storeName));
-
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-
-        transaction.onabort = () =>
-          reject(transaction.error || new Error("Storage operation failed."));
-      });
-    }
-
-    function getCategoryFiles(category) {
-      return storeRequest(
-        "readonly",
-        store => store.index("category").getAll(category)
-      );
-    }
-
-    function escapeHtml(value) {
-      const element = document.createElement("span");
-      element.textContent = String(value);
-      return element.innerHTML;
-    }
-
-    function formatSize(bytes) {
-      if (bytes < 1024) return `${bytes} B`;
-
-      const units = ["KB", "MB", "GB"];
-      let size = bytes / 1024;
-      let unit = 0;
-
-      while (size >= 1024 && unit < units.length - 1) {
-        size /= 1024;
-        unit += 1;
-      }
-
-      return `${size.toFixed(1)} ${units[unit]}`;
-    }
-
-    function slug(value) {
-      return value
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
-    }
-
-    function renderPage() {
-      const nav = document.querySelector("#categoryNav");
-      const grid = document.querySelector("#fileGrid");
-
-      nav.innerHTML = categories.map(category => `
-        <button
-          type="button"
-          class="category-btn"
-          data-category="${escapeHtml(category.name)}"
-          aria-label="Choose files for ${escapeHtml(category.name)}"
-        >
-          ${escapeHtml(category.name)} +
-        </button>
-      `).join("");
-
-      grid.innerHTML = categories.map(category => `
-        <section
-          class="card"
-          id="category-${slug(category.name)}"
-          aria-labelledby="heading-${slug(category.name)}"
-        >
-          <h2 id="heading-${slug(category.name)}">
-            ${escapeHtml(category.name)}
-          </h2>
-          <p>${escapeHtml(category.description)}</p>
-          <button
-            type="button"
-            class="upload-btn"
-            data-category="${escapeHtml(category.name)}"
-          >
-            Add files from device
-          </button>
-          <ul
-            class="file-list"
-            id="list-${slug(category.name)}"
-            aria-label="${escapeHtml(category.name)}"
-          ></ul>
-        </section>
-      `).join("");
-
-      renderAllFiles();
-    }
-
-    async function renderAllFiles() {
-      for (const category of categories) {
-        await renderFiles(category.name);
-      }
-    }
-
-    async function renderFiles(category) {
-      const list = document.querySelector(`#list-${slug(category)}`);
-      const files = await getCategoryFiles(category);
-
-      files.sort((a, b) => b.addedAt - a.addedAt);
-
-      list.innerHTML = files.length
-        ? files.map(file => `
-            <li class="file-row">
-              <div>
-                <div class="file-name">
-                  ${escapeHtml(file.name)}
-                </div>
-                <div class="file-meta">
-                  ${formatSize(file.size)}
-                  ${file.type ? ` · ${escapeHtml(file.type)}` : ""}
-                </div>
-              </div>
-
-              <div class="file-actions">
-                <button
-                  type="button"
-                  class="file-action download-btn"
-                  data-download="${escapeHtml(file.id)}"
-                >
-                  Download
-                </button>
-                <button
-                  type="button"
-                  class="file-action delete-btn"
-                  data-delete="${escapeHtml(file.id)}"
-                  aria-label="Delete ${escapeHtml(file.name)}"
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
-          `).join("")
-        : '<li class="empty">No files saved here yet.</li>';
-    }
-
-    document.addEventListener("click", async event => {
-      const upload = event.target.closest("[data-category]");
-      if (upload) {
-        selectedCategory = upload.dataset.category;
-        picker.value = "";
-        picker.click();
-        return;
-      }
-
-      const download = event.target.closest("[data-download]");
-      if (download) {
-        const file = await storeRequest(
-          "readonly",
-          store => store.get(download.dataset.download)
-        );
-
-        if (!file) return;
-
-        const url = URL.createObjectURL(file.blob);
-        const link = document.createElement("a");
-
-        link.href = url;
-        link.download = file.name;
-        link.click();
-
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        return;
-      }
-
-      const remove = event.target.closest("[data-delete]");
-      if (remove) {
-        const file = await storeRequest(
-          "readonly",
-          store => store.get(remove.dataset.delete)
-        );
-
-        if (!file) return;
-
-        if (!confirm(`Delete "${file.name}" from this browser?`)) {
-          return;
-        }
-
-        await storeRequest(
-          "readwrite",
-          store => store.delete(file.id)
-        );
-
-        await renderFiles(file.category);
-      }
-    });
-
-    picker.addEventListener("change", async () => {
-      const files = Array.from(picker.files || []);
-
-      if (!files.length) return;
-
-      try {
-        for (const file of files) {
-          await storeRequest("readwrite", store =>
-            store.add({
-              id: crypto.randomUUID
-                ? crypto.randomUUID()
-                : `${Date.now()}-${Math.random()}`,
-              category: selectedCategory,
-              name: file.name,
-              type: file.type,
-              size: file.size,
-              addedAt: Date.now(),
-              blob: file
-            })
-          );
-        }
-
-        await renderFiles(selectedCategory);
-      } catch (error) {
-        console.error(error);
-        alert(
-          "Could not save these files. Browser storage may be full."
-        );
-      } finally {
-        picker.value = "";
-      }
-    });
-
-    (async function init() {
-      try {
-        if (!window.indexedDB) {
-          throw new Error("IndexedDB is unavailable.");
-        }
-
-        database = await openDatabase();
-        renderPage();
-      } catch (error) {
-        console.error(error);
-        document.querySelector("#fileGrid").textContent =
-          "Browser file storage is unavailable. Use a modern browser.";
-      }
-    })();
-  </script>
-</body>
-</html>
