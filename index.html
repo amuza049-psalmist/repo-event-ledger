@@ -16,7 +16,6 @@
       padding: 20px;
     }
 
-    /* Login Overlay Styling */
     .auth-wrapper {
       min-height: 90vh;
       display: flex;
@@ -47,7 +46,6 @@
       padding: 8px 12px; border-radius: 6px; font-size: 0.84rem; margin-bottom: 12px; display: none;
     }
 
-    /* Main Portal Styling */
     .container { max-width: 1180px; margin: 0 auto; display: none; }
     header {
       display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
@@ -206,7 +204,6 @@
       </div>
     </header>
 
-    <!-- Navigation Buttons -->
     <div class="nav-buttons">
       <a href="https://github.com" class="nav-btn btn-records">Academic Records</a>
       <a href="#filesSection" class="nav-btn btn-files">Files</a>
@@ -218,8 +215,13 @@
       <a href="https://moodle.unza.zm" target="_blank" class="nav-btn btn-moodle">UNZA Moodle</a>
     </div>
 
-    <!-- Device Audio & Notification Permission Bar -->
     <div class="alarm-status-bar">
       <span id="audioStatus">🔊 <strong>Device Ringtone:</strong> Click "Activate Device Alarm" once so your phone/PC rings loud without delay.</span>
       <div style="display:flex; gap:8px;">
         <button class="enable-btn" onclick="activateDeviceAlarm()">Activate Device Alarm</button>
+        <button class="enable-btn" style="background:#374151;" onclick="testRingtone()">Test Ring</button>
+      </div>
+    </div>
+
+    <div class="moodle-bar">
+      <div>
