@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -165,7 +164,7 @@
 <body>
   <div id="alarmBanner" class="alarm-banner">
     🔔 ALARM RINGING: <span id="alarmText"></span><br/>
-    <button onclick="stopAlarm()" style="margin-top:10px; padding:6px 16px; border:none; border-radius:6px; background:white; color:#cf222e; font-weight:bold; cursor:pointer;">STOP ALARM</button>
+    <button type="button" onclick="stopAlarm()" style="margin-top:10px; padding:6px 16px; border:none; border-radius:6px; background:white; color:#cf222e; font-weight:bold; cursor:pointer;">STOP ALARM</button>
   </div>
 
   <!-- LOGIN / REGISTER SCREEN -->
@@ -175,8 +174,8 @@
       <p class="sub">University of Zambia — Student &amp; Personal Portal</p>
 
       <div class="auth-tabs">
-        <button id="loginTabBtn" class="tab-btn active" onclick="switchAuthMode('login')">Sign In</button>
-        <button id="regTabBtn" class="tab-btn" onclick="switchAuthMode('register')">Create Account</button>
+        <button type="button" id="loginTabBtn" class="tab-btn active" onclick="switchAuthMode('login')">Sign In</button>
+        <button type="button" id="regTabBtn" class="tab-btn" onclick="switchAuthMode('register')">Create Account</button>
       </div>
 
       <div id="authError" class="error-msg"></div>
@@ -187,7 +186,7 @@
       <input type="password" id="authPassword" placeholder="Password (starts with unza...)" />
       <div class="rule-hint">• Password: Must start with <strong>unza</strong> and be at least 4 characters long</div>
 
-      <button id="authSubmitBtn" class="action-btn" onclick="handleAuth()">Sign In to Event Ledger</button>
+      <button type="button" id="authSubmitBtn" class="action-btn" onclick="handleAuth()">Sign In to Event Ledger</button>
     </div>
   </div>
 
@@ -200,7 +199,7 @@
       </div>
       <div class="user-pill">
         <span>👤 ID: <strong id="currentUserDisplay"></strong></span>
-        <button class="logout-btn" onclick="logoutUser()">Logout</button>
+        <button type="button" class="logout-btn" onclick="logoutUser()">Logout</button>
       </div>
     </header>
 
@@ -218,10 +217,5 @@
     <div class="alarm-status-bar">
       <span id="audioStatus">🔊 <strong>Device Ringtone:</strong> Click "Activate Device Alarm" once so your phone/PC rings loud without delay.</span>
       <div style="display:flex; gap:8px;">
-        <button class="enable-btn" onclick="activateDeviceAlarm()">Activate Device Alarm</button>
-        <button class="enable-btn" style="background:#374151;" onclick="testRingtone()">Test Ring</button>
-      </div>
-    </div>
-
-    <div class="moodle-bar">
-      <div>
+        <button type="button" class="enable-btn" onclick="activateDeviceAlarm()">Activate Device Alarm</button>
+        <button type="button" class="enable-btn" style="background:#374151;" onclick="testRingtone()">Test Ring</button>
