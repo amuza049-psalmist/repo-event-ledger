@@ -8,8 +8,11 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
     body {
       min-height: 100vh;
-      background: linear-gradient(rgba(10, 15, 25, 0.76), rgba(10, 15, 25, 0.88)),
-                  url('unza.jpg') no-repeat center center fixed;
+      background-color: #0d1117;
+      background-image: linear-gradient(rgba(10, 15, 25, 0.72), rgba(10, 15, 25, 0.85)), url('unza.jpg');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-attachment: fixed;
       background-size: cover;
       color: #f0f6fc;
       padding: 20px;
@@ -22,27 +25,26 @@
       align-items: center;
     }
     .auth-card {
-      background: rgba(22, 27, 34, 0.92);
+      background: rgba(22, 27, 34, 0.94);
       border: 1px solid #30363d;
       border-radius: 12px;
       padding: 28px;
       width: 100%;
       max-width: 420px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.65);
     }
     .auth-card h2 { text-align: center; margin-bottom: 6px; font-size: 1.6rem; }
     .auth-card p.sub { text-align: center; color: #8b949e; font-size: 0.88rem; margin-bottom: 18px; }
     .auth-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
     .tab-btn {
-      flex: 1; padding: 9px; border: 1px solid #30363d; background: #0d1117;
+      flex: 1; padding: 10px; border: 1px solid #30363d; background: #0d1117;
       color: #8b949e; border-radius: 6px; cursor: pointer; font-weight: bold;
     }
     .tab-btn.active { background: #238636; color: white; border-color: #238636; }
-    .rule-hint { font-size: 0.78rem; color: #99f6e4; margin: -4px 0 10px 2px; }
+    .rule-hint { font-size: 0.78rem; color: #99f6e4; margin: -4px 0 12px 2px; }
     .error-msg {
-      background: rgba(218, 54, 51, 0.2); border: 1px solid #da3633; color: #ffa198;
-      padding: 8px 12px; border-radius: 6px; font-size: 0.84rem; margin-bottom: 12px; display: none;
+      background: rgba(218, 54, 51, 0.25); border: 1px solid #da3633; color: #ffa198;
+      padding: 9px 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 12px; display: none;
     }
 
     .container { max-width: 1180px; margin: 0 auto; display: none; }
@@ -50,7 +52,7 @@
       display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
       margin-bottom: 20px; gap: 12px; border-bottom: 1px solid #30363d; padding-bottom: 14px;
     }
-    header h1 { font-size: 1.9rem; text-shadow: 0 2px 6px rgba(0,0,0,0.6); }
+    header h1 { font-size: 1.9rem; }
     header p { color: #c9d1d9; font-size: 0.9rem; }
     .user-pill {
       display: flex; align-items: center; gap: 10px; background: rgba(22, 27, 34, 0.9);
@@ -67,9 +69,7 @@
     .nav-btn {
       padding: 9px 15px; border: none; border-radius: 6px; font-weight: 600;
       color: white; cursor: pointer; text-decoration: none; font-size: 0.88rem;
-      transition: transform 0.15s, opacity 0.15s;
     }
-    .nav-btn:hover { transform: translateY(-2px); opacity: 0.9; }
     .btn-records { background: #2ea44f; }
     .btn-files { background: #0969da; }
     .btn-tests { background: #8250df; }
@@ -80,16 +80,9 @@
     .btn-moodle { background: #f97316; }
 
     .alarm-status-bar {
-      background: rgba(13, 148, 136, 0.2);
-      border: 1px solid #0d9488;
-      border-radius: 8px;
-      padding: 12px 18px;
-      margin-bottom: 18px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
+      background: rgba(13, 148, 136, 0.2); border: 1px solid #0d9488; border-radius: 8px;
+      padding: 12px 18px; margin-bottom: 18px; display: flex; flex-wrap: wrap;
+      justify-content: space-between; align-items: center; gap: 10px;
     }
     .alarm-status-bar span { font-size: 0.9rem; color: #99f6e4; }
     .enable-btn {
@@ -98,16 +91,9 @@
     }
 
     .moodle-bar {
-      background: rgba(249, 115, 22, 0.16);
-      border: 1px solid #f97316;
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 22px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
+      background: rgba(249, 115, 22, 0.16); border: 1px solid #f97316; border-radius: 10px;
+      padding: 14px 18px; margin-bottom: 22px; display: flex; flex-wrap: wrap;
+      justify-content: space-between; align-items: center; gap: 12px;
     }
     .moodle-bar h3 { color: #fdba74; font-size: 1rem; margin-bottom: 3px; }
     .moodle-bar p { font-size: 0.84rem; color: #e2e8f0; }
@@ -121,11 +107,8 @@
     @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
 
     .card {
-      background: rgba(22, 27, 34, 0.88);
-      border: 1px solid #30363d;
-      border-radius: 10px;
-      padding: 18px;
-      backdrop-filter: blur(8px);
+      background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d;
+      border-radius: 10px; padding: 18px;
     }
     .card h2 { font-size: 1.12rem; margin-bottom: 12px; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
     input, select, button.action-btn {
@@ -164,7 +147,7 @@
 <body>
   <div id="alarmBanner" class="alarm-banner">
     🔔 ALARM RINGING: <span id="alarmText"></span><br/>
-    <button type="button" onclick="stopAlarm()" style="margin-top:10px; padding:6px 16px; border:none; border-radius:6px; background:white; color:#cf222e; font-weight:bold; cursor:pointer;">STOP ALARM</button>
+    <button type="button" id="stopAlarmBtn" style="margin-top:10px; padding:6px 16px; border:none; border-radius:6px; background:white; color:#cf222e; font-weight:bold; cursor:pointer;">STOP ALARM</button>
   </div>
 
   <!-- LOGIN / REGISTER SCREEN -->
@@ -174,19 +157,19 @@
       <p class="sub">University of Zambia — Student &amp; Personal Portal</p>
 
       <div class="auth-tabs">
-        <button type="button" id="loginTabBtn" class="tab-btn active" onclick="switchAuthMode('login')">Sign In</button>
-        <button type="button" id="regTabBtn" class="tab-btn" onclick="switchAuthMode('register')">Create Account</button>
+        <button type="button" id="loginTabBtn" class="tab-btn active">Sign In</button>
+        <button type="button" id="regTabBtn" class="tab-btn">Create Account</button>
       </div>
 
       <div id="authError" class="error-msg"></div>
 
       <input type="text" id="authUsername" maxlength="10" placeholder="10-Digit Student ID (starts with 2)" />
-      <div class="rule-hint">• Username: Exactly 10 digits starting with <strong>2</strong> (e.g., 2025123456)</div>
+      <div class="rule-hint">• Username: Exactly 10 digits starting with <strong>2</strong> (e.g., 2024067832)</div>
 
       <input type="password" id="authPassword" placeholder="Password (starts with unza...)" />
       <div class="rule-hint">• Password: Must start with <strong>unza</strong> and be at least 4 characters long</div>
 
-      <button type="button" id="authSubmitBtn" class="action-btn" onclick="handleAuth()">Sign In to Event Ledger</button>
+      <button type="button" id="authSubmitBtn" class="action-btn">Sign In to Event Ledger</button>
     </div>
   </div>
 
@@ -199,7 +182,7 @@
       </div>
       <div class="user-pill">
         <span>👤 ID: <strong id="currentUserDisplay"></strong></span>
-        <button type="button" class="logout-btn" onclick="logoutUser()">Logout</button>
+        <button type="button" id="logoutBtn" class="logout-btn">Logout</button>
       </div>
     </header>
 
@@ -217,5 +200,14 @@
     <div class="alarm-status-bar">
       <span id="audioStatus">🔊 <strong>Device Ringtone:</strong> Click "Activate Device Alarm" once so your phone/PC rings loud without delay.</span>
       <div style="display:flex; gap:8px;">
-        <button type="button" class="enable-btn" onclick="activateDeviceAlarm()">Activate Device Alarm</button>
-        <button type="button" class="enable-btn" style="background:#374151;" onclick="testRingtone()">Test Ring</button>
+        <button type="button" id="activateAlarmBtn" class="enable-btn">Activate Device Alarm</button>
+        <button type="button" id="testRingBtn" class="enable-btn" style="background:#374151;">Test Ring</button>
+      </div>
+    </div>
+
+    <div class="moodle-bar">
+      <div>
+        <h3>🎓 Direct UNZA Moodle Academic Sync</h3>
+        <p>1. Export your Moodle Calendar (.ics) &nbsp;→&nbsp; 2. Import here to auto-schedule Labs, Tests &amp; Exams with alarms.</p>
+      </div>
+      <div class="moodle-actions">
