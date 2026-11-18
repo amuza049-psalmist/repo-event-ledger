@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Ledger — Academic Portal</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(rgba(10, 15, 25, 0.78), rgba(10, 15, 25, 0.88)),
+                  url('https://github.com') no-repeat center center fixed;
+      background-size: cover;
+      color: #f0f6fc;
+      padding: 24px;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 24px; }
+    header h1 { font-size: 2.2rem; margin-bottom: 8px; }
+    header p { color: #8b949e; }
+    .nav-buttons {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 28px;
+    }
+    .nav-btn {
+      padding: 10px 18px; border: none; border-radius: 6px; font-weight: 600;
+      color: white; cursor: pointer; text-decoration: none; transition: transform 0.15s;
+    }
+    .nav-btn:hover { transform: translateY(-2px); opacity: 0.92; }
+    .btn-records { background: #2ea44f; }
+    .btn-files { background: #0969da; }
+    .btn-tests { background: #8250df; }
+    .btn-quizzes { background: #bf8700; }
+    .btn-labs { background: #cf222e; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: rgba(22, 27, 34, 0.88);
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 20px;
+      backdrop-filter: blur(6px);
+    }
+    .card h2 { font-size: 1.25rem; margin-bottom: 14px; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
+    input, select, button.action-btn {
+      width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 6px;
+      border: 1px solid #30363d; background: #0d1117; color: #f0f6fc;
+    }
+    button.action-btn {
+      background: #238636; border: none; font-weight: bold; cursor: pointer;
+    }
+    button.action-btn:hover { background: #2ea043; }
+    ul { list-style: none; margin-top: 10px; }
+    li {
+      background: #0d1117; border: 1px solid #30363d; padding: 10px 12px;
+      border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 12px; background: #1f6feb; margin-right: 8px; }
+    .del-btn {
+      background: #da3633; color: white; border: none; padding: 4px 8px;
+      border-radius: 4px; cursor: pointer; font-size: 0.8rem;
+    }
+    .alarm-banner {
+      display: none; position: fixed; top: 20px; right: 20px; background: #cf222e;
+      color: white; padding: 16px 22px; border-radius: 8px; font-weight: bold;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <div id="alarmBanner" class="alarm-banner">
+    ⏰ ALARM: <span id="alarmText"></span>
+    <button onclick="stopAlarm()" style="margin-left:12px; padding:4px 10px; cursor:pointer;">Dismiss</button>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>Welcome to Event Ledger</h1>
+      <p>Manage your academic records, files, upcoming events, and study alarms</p>
+    </header>
+
+    <div class="nav-buttons">
+      <a href="https://github.com" class="nav-btn btn-records">Academic Records</a>
+      <a href="#filesSection" class="nav-btn btn-files">Files</a>
+      <a href="https://github.com" class="nav-btn btn-tests">Tests</a>
+      <a href="https://github.com" class="nav-btn btn-quizzes">Quizzes</a>
+      <a href="https://github.com" class="nav-btn btn-labs">Labs</a>
+    </div>
+
+    <div class="grid">
+      <!-- Upcoming Events & Alarm Section -->
+      <div class="card">
+        <h2>📅 Add Upcoming Event & Alarm</h2>
+        <input type="text" id="eventTitle" placeholder="Event name (e.g., Data Structures Lab 2)" />
+        <select id="eventCategory">
+          <option value="Labs">Labs</option>
+          <option value="Tests">Tests</option>
+          <option value="Quizzes">Quizzes</option>
+          <option value="Academic Records">Academic Records</option>
+        </select>
+        <input type="datetime-local" id="eventTime" />
+        <button class="action-btn" onclick="addEvent()">+ Add Event & Set Alarm</button>
+        <ul id="eventList"></ul>
+      </div>
+
+      <!-- User Files Section -->
+      <div class="card" id="filesSection">
+        <h2>📁 Upload & Manage Files</h2>
+        <input type="file" id="fileInput" />
+        <input type="text" id="fileNote" placeholder="File description (e.g., Lecture 4 Notes)" />
+        <button class="action-btn" onclick="addFile()">+ Save File to Ledger</button>
+        <ul id="fileList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let events = JSON.parse(localStorage.getItem('ledger_events') || '[]');
+    let files = JSON.parse(localStorage.getItem('ledger_files') || '[]');
+    let alarmInterval = null;
+    let audioCtx = null;
+
+    function playBeep() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+      osc.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.4);
+    }
+
+    function addEvent() {
+      const title = document.getElementById('eventTitle').value.trim();
+      const category = document.getElementById('eventCategory').value;
+      const time = document.getElementById('eventTime').value;
+      if (!title || !time) return alert('Please enter both an event title and date/time.');
+
+      events.push({ id: Date.now(), title, category, time, triggered: false });
+      localStorage.setItem('ledger_events', JSON.stringify(events));
+      document.getElementById('eventTitle').value = '';
+      renderEvents();
+    }
+
+    function deleteEvent(id) {
+      events = events.filter(e => e.id !== id);
+      localStorage.setItem('ledger_events', JSON.stringify(events));
+      renderEvents();
+    }
+
+    function renderEvents() {
+      const list = document.getElementById('eventList');
+      list.innerHTML = '';
+      events.forEach(ev => {
+        const formatted = new Date(ev.time).toLocaleString();
+        list.innerHTML += `
+          <li>
+            <div>
+              <span class="badge">${ev.category}</span>
+              <strong>${ev.title}</strong><br/>
+              <small style="color:#8b949e;">⏰ ${formatted}</small>
+            </div>
+            <button class="del-btn" onclick="deleteEvent(${ev.id})">Delete</button>
+          </li>`;
+      });
+    }
+
+    function addFile() {
+      const input = document.getElementById('fileInput');
+      const note = document.getElementById('fileNote').value.trim();
+      if (!input.files.length) return alert('Please select a file first.');
+
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        files.push({
+          id: Date.now(),
+          name: file.name,
+          note: note || 'Course File',
+          dataUrl: e.target.result
+        });
+        try {
+          localStorage.setItem('ledger_files', JSON.stringify(files));
+          document.getElementById('fileNote').value = '';
+          input.value = '';
+          renderFiles();
+        } catch (err) {
+          alert('File is too large for browser storage (keep under 3MB).');
+          files.pop();
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function deleteFile(id) {
+      files = files.filter(f => f.id !== id);
+      localStorage.setItem('ledger_files', JSON.stringify(files));
+      renderFiles();
+    }
+
+    function renderFiles() {
+      const list = document.getElementById('fileList');
+      list.innerHTML = '';
+      files.forEach(f => {
+        list.innerHTML += `
+          <li>
+            <div>
+              <strong>${f.name}</strong><br/>
+              <small style="color:#8b949e;">${f.note}</small>
+            </div>
+            <div>
+              <a href="${f.dataUrl}" download="${f.name}" style="color:#58a6ff; margin-right:10px; font-size:0.85rem;">Download</a>
+              <button class="del-btn" onclick="deleteFile(${f.id})">Delete</button>
+            </div>
+          </li>`;
+      });
+    }
+
+    // Check alarms every 5 seconds
+    setInterval(() => {
+      const now = new Date().getTime();
+      events.forEach(ev => {
+        const target = new Date(ev.time).getTime();
+        if (!ev.triggered && now >= target) {
+          ev.triggered = true;
+          localStorage.setItem('ledger_events', JSON.stringify(events));
+          document.getElementById('alarmText').innerText = `${ev.title} (${ev.category})`;
+          document.getElementById('alarmBanner').style.display = 'block';
+          alarmInterval = setInterval(playBeep, 1000);
+        }
+      });
+    }, 5000);
+
+    function stopAlarm() {
+      clearInterval(alarmInterval);
+      document.getElementById('alarmBanner').style.display = 'none';
+    }
+
+    renderEvents();
+    renderFiles();
+  </script>
+</body>
+</html>
