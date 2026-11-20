@@ -15,10 +15,12 @@
 * **📅 Dual Event Schedulers:**
   * **Academic Events:** Track **Labs**, **Tests**, **Quizzes**, **Exams**, **Assignments**, and **Academic Records**.
   * **Other Events:** Separately manage **Church Services**, **Work Shifts**, **Internship Programs**, **Important Letters**, and **Personal Appointments**.
+  * Events stay saved until deleted in the app; past events are marked in red as **Missed** with their scheduled date and time.
 * **🔔 Instant Device Alarms & Native Calendar Export:**
   * Plays a loud polyphonic ringtone, vibrates supported mobile devices, and triggers system notifications at the exact scheduled second.
   * Includes a **📲 Phone Alarm** button on every event to export a native `.ics` trigger directly into your phone's built-in calendar or alarm app.
-* **📁 Course Files & Document Manager:** Upload, organize, and download lecture notes, lab manuals, past papers, and important letters directly from the dashboard.
+* **📁 Course Files & Document Manager:** Tap a file to open it, or use its three-dot menu to open, download, share through your device's share sheet, or delete it. Browsers may download unsupported file types; active-content files are downloaded rather than rendered in the app's origin.
+* **⏰ My Daily Routine:** Set independent one-time, daily, or weekly alarms on a selected weekday. Missed occurrences while the app is closed are skipped; routine alarms ring only while the app is open.
 
 ---
 
@@ -42,7 +44,7 @@ The app must be served from HTTPS (such as GitHub Pages) or localhost for instal
 
 ### Local data protection
 
-The app encrypts saved events and files in this browser using AES-GCM with a key derived from the account password via PBKDF2. Use the same browser profile and computer number to access them. The password is not recoverable: if it is forgotten, encrypted data cannot be decrypted. The reset option deletes the local account and encrypted events/files so a new account can be created; it does not restore the old data. Although the form accepts passwords from 6 characters, the fixed `unza` prefix leaves little room for a short password; use a much longer, unique password for sensitive information. This is local-device protection, not server-backed account security; someone who controls the device/browser or runs modified app code can still access data while it is unlocked. Use the app over HTTPS (GitHub Pages does this) or localhost so browser cryptography is available.
+The app encrypts saved events, routine alarms, and files in this browser using AES-GCM with a key derived from the account password via PBKDF2. They remain on this device after logout and are not automatically expired; delete each item in the app to remove it. Browser/site-data clearing or device loss can still remove them. Use the same browser profile and computer number to access them. The password is not recoverable: if it is forgotten, encrypted data cannot be decrypted. The reset option deletes the local account and encrypted events, routines, and files so a new account can be created; it does not restore the old data. Although the form accepts passwords from 6 characters, the fixed `unza` prefix leaves little room for a short password; use a much longer, unique password for sensitive information. This is local-device protection, not server-backed account security; someone who controls the device/browser or runs modified app code can still access data while it is unlocked. Use the app over HTTPS (GitHub Pages does this) or localhost so browser cryptography is available.
 
 ---
 

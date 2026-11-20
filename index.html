@@ -28,10 +28,21 @@
     .row { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; padding:12px 0; border-top:1px solid var(--line); } .row:first-child { border-top:0; } .row-main { min-width:0; }
     .row-title { font-weight:700; overflow-wrap:anywhere; } .row small { display:block; color:var(--muted); }
     .row-actions { display:flex; gap:6px; flex-shrink:0; } .row-actions button { padding:6px 9px; font-size:.85rem; }
+    .file-open { display:block; width:100%; padding:0; background:transparent; color:var(--text); text-align:left; text-decoration:none; border-radius:7px; }
+    .file-open[aria-disabled="true"] { opacity:.65; cursor:not-allowed; }
+    .file-open small { font-weight:400; }
+    .file-actions-menu { position:relative; }
+    .file-actions-menu summary { list-style:none; border-radius:7px; padding:6px 12px; background:#30363d; cursor:pointer; }
+    .file-actions-menu summary::-webkit-details-marker { display:none; }
+    .file-menu { position:absolute; z-index:8; top:calc(100% + 4px); right:0; display:grid; gap:4px; width:150px; padding:6px; border:1px solid var(--line); border-radius:8px; background:#161b22; box-shadow:0 12px 30px rgba(0,0,0,.45); }
+    .file-menu button,.file-menu a { width:100%; padding:6px 8px; border:0; border-radius:6px; background:#30363d; color:var(--text); font:inherit; text-align:left; text-decoration:none; cursor:pointer; }
+    .file-menu a[aria-disabled="true"] { opacity:.65; cursor:not-allowed; }
+    .routine-alarm { top:130px; background:#0969da; border-color:#79c0ff; }
+    #routineDateField[hidden],#routineWeekdayField[hidden] { display:none; }
     .notice { padding:12px; border:1px solid #9a6700; border-radius:8px; color:#f0d58c; background:rgba(51,40,13,.95); font-size:.92rem; }
     .alarm { display:none; position:fixed; z-index:5; top:15px; left:50%; transform:translateX(-50%); width:min(90vw,600px); padding:18px; border:2px solid #fca5a5; border-radius:12px; background:#cf222e; color:white; text-align:center; box-shadow:0 8px 30px #000; }
     .alarm.show { display:block; } input[type=file] { padding:8px; } #icsPicker,#filePicker { display:none; }
-    .empty { color:var(--muted); padding:8px 0; } .badge { display:inline-block; border-radius:12px; padding:2px 8px; margin-right:5px; background:#1f6feb; font-size:.78rem; } .badge.imported { background:#bd561d; }
+    .empty { color:var(--muted); padding:8px 0; } .badge { display:inline-block; border-radius:12px; padding:2px 8px; margin-right:5px; background:#1f6feb; font-size:.78rem; } .badge.imported { background:#bd561d; } .badge.missed { background:var(--red); } .missed-event .row-title,.missed-event .row small { color:#ff7b72; }
     #app { display:none; }
     #loginScreen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
     .auth-card { width:min(420px,100%); padding:24px; border:1px solid var(--line); border-radius:12px; background:var(--panel); backdrop-filter:blur(8px); }
@@ -59,6 +70,7 @@
 </head>
 <body>
   <div id="alarmBanner" class="alarm" role="alert" aria-live="assertive"><div id="alarmText"></div><button id="stopAlarm" class="secondary">Stop alarm</button></div>
+  <div id="routineAlarmBanner" class="alarm routine-alarm" role="alert" aria-live="assertive"><div id="routineAlarmText"></div><button id="stopRoutineAlarm" class="secondary" type="button">Stop routine alarm</button></div>
   <section id="loginScreen" aria-label="Account access">
     <article class="auth-card">
       <h1>🎓 MY UNILIFE(UNZA)</h1>
@@ -82,7 +94,7 @@
         <button type="submit">Create account</button>
       </form>
       <button id="resetAccount" class="danger" type="button">Forgot password? Reset account</button>
-      <p class="muted">Resetting permanently deletes this browser's account, saved events, and stored files. It cannot recover them.</p>
+      <p class="muted">Resetting permanently deletes this browser's account, events, routine alarms, and stored files. It cannot recover them.</p>
       <p id="authMessage" class="auth-message muted" role="status" aria-live="polite"></p>
       <button id="installApp" class="teal" type="button" hidden>Install app</button>
       <p id="installHelp" class="muted" role="status" aria-live="polite">To add this app to your phone, open your browser menu and choose "Add to Home Screen" or "Install app".</p>
@@ -90,18 +102,48 @@
   </section>
   <main id="app">
     <header><div><h1>🎓 MY UNILIFE(UNZA)</h1><p>Schedule academic and personal events, import Moodle/SIS calendars, and keep your files on this device.</p></div><div id="userSession"><span id="loggedInUser"></span><div id="activityLogWrap"><button id="activityLogButton" type="button" aria-expanded="false" aria-controls="activityLogPanel">Activity log</button><div id="activityLogPanel" role="region" aria-label="Recent activity" hidden><ul id="activityLog"></ul></div></div><button id="logout" type="button">Log out</button></div></header>
-    <section class="status"><p id="alarmStatus">Alarms are not activated. Keep this page open and enable sound for browser alarms.</p><div class="actions"><button id="activateAlarm" class="teal">Activate alarm sound</button><button id="testAlarm" class="secondary" type="button">Test alarm sound</button></div></section>
+    <section class="status"><p id="alarmStatus">Alarms are not activated. Keep this page open and enable sound for browser alarms.</p><div class="actions"><button id="activateAlarm" class="teal">Activate alarm sound</button><button id="testAlarm" class="secondary" type="button">Test alarm sound</button><button id="toggleRoutinePanel" class="secondary" type="button" aria-expanded="false" aria-controls="routinePanel">My Daily Routine</button></div></section>
+    <section id="routinePanel" class="panel" aria-label="My Daily Routine" hidden>
+      <h2>My Daily Routine</h2>
+      <p>Set independent routine alarms. Choose a time and repeat once, daily, or weekly on a chosen day. Keep the app open for alarms; missed occurrences while it is closed are skipped.</p>
+      <div class="actions"><button id="activateRoutineSound" class="teal" type="button">Activate routine alarm sound</button><button id="testRoutineSound" class="secondary" type="button" disabled>Test routine alarm sound</button></div>
+      <p id="routineAlarmStatus" class="muted" role="status" aria-live="polite">Routine alarms are separate from scheduled event alarms.</p>
+      <form id="routineForm">
+        <label for="routineTitle">Routine name</label>
+        <input id="routineTitle" class="field" maxlength="120" required placeholder="e.g. Morning study">
+        <label for="routineTime">Alarm time</label>
+        <input id="routineTime" class="field" type="time" required>
+        <label for="routineRepeat">Repeat</label>
+        <select id="routineRepeat" class="field">
+          <option value="once">Once</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly (choose a day)</option>
+        </select>
+        <div id="routineDateField">
+          <label for="routineDate">Date</label>
+          <input id="routineDate" class="field" type="date">
+        </div>
+        <div id="routineWeekdayField" hidden>
+          <label for="routineWeekday">Day of the week</label>
+          <select id="routineWeekday" class="field">
+            <option value="0">Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option>
+          </select>
+        </div>
+        <button type="submit">Add routine alarm</button>
+      </form>
+      <ul id="routineList" class="event-list"></ul>
+    </section>
     <div class="notice"><strong>Portal/import note:</strong> Sign in to Moodle or SIS, download your calendar as an <code>.ics</code> file, then import it below.</div>
     <section class="grid">
       <article class="panel"><h2>📅 Event scheduler</h2><form id="eventForm"><label for="title">Event title</label><input id="title" class="field" maxlength="120" required placeholder="e.g. CSC 2101 test"><label for="category">Category</label><select id="category" class="field"><option>Lab</option><option>Test</option><option>Quiz</option><option>Exam</option><option>Assignment</option><option>Academic Record</option><option>Church Service</option><option>Work Shift</option><option>Internship</option><option>Important Letter</option><option>Personal Appointment</option><option>Other</option></select><label for="when">Date and time</label><input id="when" class="field" type="datetime-local" required><label for="details">Notes (optional)</label><textarea id="details" class="field" rows="2" maxlength="500" placeholder="Location, course, or other details"></textarea><button type="submit">Add event</button></form></article>
       <article class="panel"><h2>📥 Import calendar (.ics)</h2><p>Download an ICS calendar from Moodle or SIS, then select it here. Imported events are added to your scheduler.</p><button id="chooseICS" class="teal" type="button">Choose Moodle/SIS .ics file</button><input id="icsPicker" type="file" accept=".ics,text/calendar"><p id="importMessage" class="muted" aria-live="polite"></p><button id="exportICS" class="secondary" type="button">Export all events as .ics</button></article>
     </section>
-    <section class="panel"><h2>🗓️ Scheduled events</h2><ul id="eventList" class="event-list"></ul></section>
-    <section class="panel"><h2>📁 Course files &amp; documents</h2><p>Select files to save locally in this browser using IndexedDB.</p><button id="chooseFiles" type="button">Choose files to save on this device</button><input id="filePicker" type="file" multiple><ul id="fileList" class="file-list"></ul></section>
+    <section class="panel"><h2>🗓️ Scheduled events</h2><p class="muted">Events stay saved on this device until you delete them. Past events are marked as missed with their scheduled time.</p><ul id="eventList" class="event-list"></ul></section>
+    <section class="panel"><h2>📁 Course files &amp; documents</h2><p>Files are encrypted and saved locally in this browser until you delete them. Tap a file to open it, or use its three-dot menu to open, download, share, or delete it. Logging out does not remove your schedules or files.</p><button id="chooseFiles" type="button">Choose files to save on this device</button><input id="filePicker" type="file" multiple><p id="fileMessage" class="muted" role="status" aria-live="polite"></p><ul id="fileList" class="file-list"></ul></section>
     <p class="muted">Keep this page open for browser alarms. Use a calendar app for dependable background reminders.</p>
   </main>
 <!-- App logic: sections for auth, alarms, events, and encrypted file storage -->
-<script src="app.js?v=3"></script>
+<script src="app.js?v=8"></script>
 <script>
   let deferredInstallPrompt;
   const installButton = document.getElementById("installApp");

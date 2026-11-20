@@ -21,12 +21,16 @@
 ## Application behavior
 
 - Events are encrypted with Web Crypto (AES-GCM, using a PBKDF2-derived account key) before persistence in `localStorage` under `unza-event-ledger-events-v1`. Never store decrypted event data or passwords in browser storage.
+- My Daily Routine alarms are separate from event alarms and stored encrypted in `localStorage` under `unza-event-ledger-routines-v1`. They use their own scheduler and audio toggle; missed occurrences while the app was closed are skipped.
 - Uploaded files are encrypted with the same in-memory account key before persistence in IndexedDB database `unza-event-ledger-files-v1`, object store `files`, with a 25 MB per-file limit.
+- Do not automatically expire saved events or files; keep them until the user deletes them or explicitly resets the local account.
+- Uploaded files open from a one-tap file link; its three-dot menu includes open, download, share, and delete. Use the Web Share API when supported and provide a clear fallback. Render only safe preview types inline; download active-content/unsupported types rather than opening them in the app's origin.
 - The account encryption key exists only while the user is logged in. Do not add automatic session restoration; logout/reload should require the password again. Forgotten passwords cannot recover encrypted data.
-- The forgotten-password reset deletes the account and encrypted event/file data from this browser; it does not recover the old data.
+- The forgotten-password reset deletes the account and encrypted event/routine/file data from this browser; it does not recover the old data.
 - Treat the local login as a lock for encrypted local data, not protection against a compromised browser/device or modified client code. Use HTTPS/Web Crypto; do not claim server-backed security.
 - Calendar imports and exports use `.ics` text. Preserve CRLF output, escaping, VEVENT structure, UID/DTSTAMP/DTSTART fields, and the existing duplicate detection by title and start time.
 - Alarm scheduling is browser-limited. Preserve future-event validation, page-visible timer behavior, Web Audio activation, Notification permission handling, and the stop-alarm behavior.
+- My Daily Routine uses a separate encrypted routine list and scheduler, with its own sound toggle. Repeat once, daily, or weekly on a chosen weekday; skip overdue routine occurrences on login, and never claim browser alarms run in the background.
 - Browser APIs can be unavailable or restricted. Keep capability checks and user-visible fallback/error messages for AudioContext, IndexedDB, Notifications, localStorage, FileReader, and Blob URLs.
 - Use `textContent` or DOM nodes for untrusted event/title/file data instead of injecting HTML. Continue escaping values written into `.ics` files.
 
