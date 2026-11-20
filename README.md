@@ -11,6 +11,7 @@
 
 * **🔐 Student Account Login & Encrypted Local Storage:** Local sign-in and registration using a 10-digit computer number format (starting with `2`) and a password that starts with `unza` and contains at least 6 characters. Sign-in always shows the password rules and clearly reports an incorrect password. Both password fields include a show/hide control. Events and uploaded files are encrypted in browser storage using the account password.
 * **♻️ Forgotten-password reset:** Reset the local account and create a new password. Resetting permanently deletes this browser's encrypted events and files; it cannot recover them.
+* **🏛️ UNZA Library dashboard banner:** A full-width University of Zambia Main Library image appears at the top of the app after login.
 * **🎓 Direct UNZA Moodle Calendar Sync:** Export your upcoming labs, tests, quizzes, and exams from UNZA Moodle as an `.ics` file and import them in one click to auto-populate your schedule with alarms.
 * **📅 Dual Event Schedulers:**
   * **Academic Events:** Track **Labs**, **Tests**, **Quizzes**, **Exams**, **Assignments**, and **Academic Records**.
@@ -67,6 +68,7 @@ repo-event-ledger/
 ├── icon.svg               # Browser tab icon
 ├── icon-192.png           # Home screen icon
 ├── icon-512.png           # Install and maskable icon
+├── unza-library.jpg       # Main Library banner shown after login
 ├── manifest.webmanifest   # Installable web app metadata
 ├── service-worker.js      # Offline app-shell caching
 ├── test/
