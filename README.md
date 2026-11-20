@@ -9,7 +9,7 @@
 
 ## ✨ Key Features
 
-* **🔐 Student Account Login & Encrypted Local Storage:** Local sign-in and registration using a 10-digit computer number format (starting with `2`) and a password that starts with `unza` and contains at least 6 characters. Both password fields include a show/hide control. Events and uploaded files are encrypted in browser storage using the account password.
+* **🔐 Student Account Login & Encrypted Local Storage:** Local sign-in and registration using a 10-digit computer number format (starting with `2`) and a password that starts with `unza` and contains at least 6 characters. Sign-in always shows the password rules and clearly reports an incorrect password. Both password fields include a show/hide control. Events and uploaded files are encrypted in browser storage using the account password.
 * **♻️ Forgotten-password reset:** Reset the local account and create a new password. Resetting permanently deletes this browser's encrypted events and files; it cannot recover them.
 * **🎓 Direct UNZA Moodle Calendar Sync:** Export your upcoming labs, tests, quizzes, and exams from UNZA Moodle as an `.ics` file and import them in one click to auto-populate your schedule with alarms.
 * **📅 Dual Event Schedulers:**
@@ -21,6 +21,7 @@
   * Includes a **📲 Phone Alarm** button on every event to export a native `.ics` trigger directly into your phone's built-in calendar or alarm app.
 * **📁 Course Files & Document Manager:** Tap a file to open it, or use its three-dot menu to open, download, share through your device's share sheet, or delete it. Browsers may download unsupported file types; active-content files are downloaded rather than rendered in the app's origin.
 * **⏰ My Daily Routine:** Set independent one-time, daily, or weekly alarms on a selected weekday. Missed occurrences while the app is closed are skipped; routine alarms ring only while the app is open.
+* **🧭 Organized dashboard:** Use the Schedule, Events, Files, and Routine tabs to move directly between app sections. Compact icon-labeled actions keep controls clear on phones.
 
 ---
 

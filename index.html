@@ -18,7 +18,9 @@
     header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }
     h1,h2,h3,p { margin-top:0; } h1 { margin-bottom:4px; } p,.muted { color:var(--muted); }
     .links,.actions { display:flex; flex-wrap:wrap; gap:9px; }
-    a,button,.button { display:inline-block; border:0; border-radius:7px; padding:9px 13px; background:var(--blue); color:white; text-decoration:none; font:inherit; font-weight:650; cursor:pointer; }
+    a,button,.button { display:inline-flex; align-items:center; justify-content:center; gap:7px; border:0; border-radius:7px; padding:9px 13px; background:var(--blue); color:white; text-decoration:none; font:inherit; font-weight:650; cursor:pointer; }
+    button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible { outline:2px solid #79c0ff; outline-offset:2px; }
+    .button-icon { line-height:1; }
     button.secondary { background:#30363d; } button.danger { background:var(--red); } button.teal { background:var(--teal); }
     .status { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; border-color:var(--teal); } .status p { margin:0; }
     .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
@@ -47,16 +49,28 @@
     #loginScreen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
     .auth-card { width:min(420px,100%); padding:24px; border:1px solid var(--line); border-radius:12px; background:var(--panel); backdrop-filter:blur(8px); }
     .auth-card h1 { margin-bottom:6px; } .auth-card p { margin-bottom:16px; } .auth-card .field { margin-bottom:12px; }
+    .field-hint { margin:-5px 0 12px!important; color:var(--muted); font-size:.82rem; }
     .password-field { display:flex; align-items:center; gap:8px; }
     .password-field .field { flex:1; min-width:0; width:auto; margin:0; }
     .password-toggle { flex-shrink:0; background:#30363d; }
     .auth-card .password-field { margin-bottom:12px; }
     .auth-tabs { display:flex; gap:8px; margin-bottom:18px; }
     .auth-tabs button { flex:1; background:#30363d; } .auth-tabs button.active { background:var(--blue); }
-    .auth-message { min-height:24px; margin:10px 0 0; } .auth-card form button[type=submit] { width:100%; }
+    .auth-message { min-height:24px; margin:10px 0 0; } .auth-card form button[type=submit] { min-width:130px; }
+    .forgot-button { display:flex; margin-top:12px; padding:5px 0; background:transparent; color:#79c0ff; font-size:.9rem; }
+    .reset-warning { margin:2px 0 12px!important; font-size:.84rem; }
     #installApp[hidden] { display:none; }
-    #userSession { display:flex; align-items:center; gap:9px; color:var(--muted); }
+    header.dashboard-header { display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start; gap:10px; }
+    #userSession { display:flex; align-items:center; flex-wrap:wrap; gap:7px; color:var(--muted); }
+    #loggedInUser { font-size:.78rem; }
     #userSession button { background:#30363d; }
+    #logout { padding:5px 9px; font-family:"Trebuchet MS",Verdana,sans-serif; font-size:.78rem; font-weight:700; letter-spacing:.03em; }
+    .app-brand h1 { margin-bottom:2px; }
+    .app-brand p { margin:0; }
+    .app-nav { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-bottom:16px; }
+    .app-nav button { background:#30363d; }
+    .app-nav button[aria-selected="true"] { background:var(--blue); box-shadow:inset 0 -2px 0 #79c0ff; }
+    .view-panel[hidden] { display:none; }
     #activityLogWrap { position:relative; }
     #activityLogButton { background:#30363d; }
     #activityLogPanel { position:absolute; z-index:10; top:calc(100% + 8px); right:0; width:min(340px,calc(100vw - 32px)); max-height:280px; overflow:auto; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:#161b22; box-shadow:0 12px 30px rgba(0,0,0,.45); }
@@ -66,47 +80,68 @@
     #activityLog li:first-child { border-top:0; }
     #activityLog small { display:block; color:var(--muted); }
     @media (max-width:700px) { body { padding:12px; } .grid { grid-template-columns:1fr; } .row { flex-direction:column; } .row-actions { flex-wrap:wrap; } }
+    @media (max-width:480px) { .app-nav { grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; padding:2px 0 8px; } .app-nav button { min-width:0; padding:8px 4px; gap:4px; font-size:.78rem; } .auth-card { padding:18px; } }
   </style>
 </head>
 <body>
-  <div id="alarmBanner" class="alarm" role="alert" aria-live="assertive"><div id="alarmText"></div><button id="stopAlarm" class="secondary">Stop alarm</button></div>
-  <div id="routineAlarmBanner" class="alarm routine-alarm" role="alert" aria-live="assertive"><div id="routineAlarmText"></div><button id="stopRoutineAlarm" class="secondary" type="button">Stop routine alarm</button></div>
+  <div id="alarmBanner" class="alarm" role="alert" aria-live="assertive"><div id="alarmText"></div><button id="stopAlarm" class="secondary"><span class="button-icon" aria-hidden="true">⏹</span><span>Stop</span></button></div>
+  <div id="routineAlarmBanner" class="alarm routine-alarm" role="alert" aria-live="assertive"><div id="routineAlarmText"></div><button id="stopRoutineAlarm" class="secondary" type="button"><span class="button-icon" aria-hidden="true">⏹</span><span>Stop</span></button></div>
   <section id="loginScreen" aria-label="Account access">
     <article class="auth-card">
       <h1>🎓 MY UNILIFE(UNZA)</h1>
-      <p>Sign in or create an account for this browser. Use a long, unique password. If you forget it, you can reset this browser's account, but its saved data will be permanently deleted.</p>
+      <p>Sign in or create an account for this browser. Use a long, unique password.</p>
       <div class="auth-tabs" role="tablist" aria-label="Account options">
-        <button id="showLogin" class="active" type="button" role="tab" aria-selected="true">Log in</button>
-        <button id="showRegister" type="button" role="tab" aria-selected="false">Create account</button>
+        <button id="showLogin" class="active" type="button" role="tab" aria-selected="true"><span class="button-icon" aria-hidden="true">🔐</span><span>Log in</span></button>
+        <button id="showRegister" type="button" role="tab" aria-selected="false"><span class="button-icon" aria-hidden="true">✨</span><span>Register</span></button>
       </div>
       <form id="loginForm">
         <label for="loginComputerNumber">Computer number</label>
         <input id="loginComputerNumber" class="field" name="computerNumber" inputmode="numeric" autocomplete="username" maxlength="10" placeholder="e.g. 2024067832" required>
         <label for="loginPassword">Password</label>
-        <div class="password-field"><input id="loginPassword" class="field" name="password" type="password" autocomplete="current-password" minlength="6" required><button id="toggleLoginPassword" class="password-toggle" type="button" aria-controls="loginPassword" aria-pressed="false">Show password</button></div>
-        <button type="submit">Log in</button>
+        <div class="password-field"><input id="loginPassword" class="field" name="password" type="password" autocomplete="current-password" required aria-describedby="loginPasswordHelp"><button id="toggleLoginPassword" class="password-toggle" type="button" aria-label="Show password" aria-controls="loginPassword" aria-pressed="false"><span class="button-icon" aria-hidden="true">👁</span><span>Show</span></button></div>
+        <p id="loginPasswordHelp" class="field-hint">Password must start with “unza” and contain at least 6 characters.</p>
+        <button type="submit"><span class="button-icon" aria-hidden="true">🔓</span><span>Log in</span></button>
       </form>
       <form id="registerForm" hidden>
         <label for="registerComputerNumber">Computer number</label>
         <input id="registerComputerNumber" class="field" name="computerNumber" inputmode="numeric" autocomplete="username" maxlength="10" pattern="2[0-9]{9}" placeholder="10 digits starting with 2" required>
         <label for="registerPassword">Password</label>
-        <div class="password-field"><input id="registerPassword" class="field" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="Start with unza and use at least 6 characters" required><button id="toggleRegisterPassword" class="password-toggle" type="button" aria-controls="registerPassword" aria-pressed="false">Show password</button></div>
-        <button type="submit">Create account</button>
+        <div class="password-field"><input id="registerPassword" class="field" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="Start with unza and use at least 6 characters" required aria-describedby="registerPasswordHelp"><button id="toggleRegisterPassword" class="password-toggle" type="button" aria-label="Show password" aria-controls="registerPassword" aria-pressed="false"><span class="button-icon" aria-hidden="true">👁</span><span>Show</span></button></div>
+        <p id="registerPasswordHelp" class="field-hint">Password must start with “unza” and contain at least 6 characters.</p>
+        <button type="submit"><span class="button-icon" aria-hidden="true">✨</span><span>Register</span></button>
       </form>
-      <button id="resetAccount" class="danger" type="button">Forgot password? Reset account</button>
-      <p class="muted">Resetting permanently deletes this browser's account, events, routine alarms, and stored files. It cannot recover them.</p>
+      <button id="resetAccount" class="forgot-button" type="button"><span class="button-icon" aria-hidden="true">🔑</span><span>Forgot password?</span></button>
+      <p class="muted reset-warning">Forgotten passwords cannot be recovered. Resetting deletes this browser’s account, events, routines, and files.</p>
       <p id="authMessage" class="auth-message muted" role="status" aria-live="polite"></p>
-      <button id="installApp" class="teal" type="button" hidden>Install app</button>
+      <button id="installApp" class="teal" type="button" hidden><span class="button-icon" aria-hidden="true">📲</span><span>Install</span></button>
       <p id="installHelp" class="muted" role="status" aria-live="polite">To add this app to your phone, open your browser menu and choose "Add to Home Screen" or "Install app".</p>
     </article>
   </section>
   <main id="app">
-    <header><div><h1>🎓 MY UNILIFE(UNZA)</h1><p>Schedule academic and personal events, import Moodle/SIS calendars, and keep your files on this device.</p></div><div id="userSession"><span id="loggedInUser"></span><div id="activityLogWrap"><button id="activityLogButton" type="button" aria-expanded="false" aria-controls="activityLogPanel">Activity log</button><div id="activityLogPanel" role="region" aria-label="Recent activity" hidden><ul id="activityLog"></ul></div></div><button id="logout" type="button">Log out</button></div></header>
-    <section class="status"><p id="alarmStatus">Alarms are not activated. Keep this page open and enable sound for browser alarms.</p><div class="actions"><button id="activateAlarm" class="teal">Activate alarm sound</button><button id="testAlarm" class="secondary" type="button">Test alarm sound</button><button id="toggleRoutinePanel" class="secondary" type="button" aria-expanded="false" aria-controls="routinePanel">My Daily Routine</button></div></section>
-    <section id="routinePanel" class="panel" aria-label="My Daily Routine" hidden>
+    <header class="dashboard-header">
+      <div id="userSession"><button id="logout" type="button"><span class="button-icon" aria-hidden="true">↪</span><span>Log out</span></button><span id="loggedInUser"></span><div id="activityLogWrap"><button id="activityLogButton" type="button" aria-expanded="false" aria-controls="activityLogPanel"><span class="button-icon" aria-hidden="true">◷</span><span>Activity</span></button><div id="activityLogPanel" role="region" aria-label="Recent activity" hidden><ul id="activityLog"></ul></div></div></div>
+      <div class="app-brand"><h1>🎓 MY UNILIFE(UNZA)</h1><p>Schedule events and manage your files on this device.</p></div>
+    </header>
+    <section class="status"><p id="alarmStatus">Alarms are not active. Keep this page open and enable sound.</p><div class="actions"><button id="activateAlarm" class="teal"><span class="button-icon" aria-hidden="true">🔔</span><span>Enable</span></button><button id="testAlarm" class="secondary" type="button"><span class="button-icon" aria-hidden="true">🔊</span><span>Test</span></button></div></section>
+    <nav class="app-nav" role="tablist" aria-label="App sections">
+      <button id="tabSchedule" class="app-tab" type="button" role="tab" aria-selected="true" aria-controls="scheduleView"><span class="button-icon" aria-hidden="true">🗓</span><span>Schedule</span></button>
+      <button id="tabEvents" class="app-tab" type="button" role="tab" aria-selected="false" aria-controls="eventsView"><span class="button-icon" aria-hidden="true">📅</span><span>Events</span></button>
+      <button id="tabFiles" class="app-tab" type="button" role="tab" aria-selected="false" aria-controls="filesView"><span class="button-icon" aria-hidden="true">📁</span><span>Files</span></button>
+      <button id="tabRoutine" class="app-tab" type="button" role="tab" aria-selected="false" aria-controls="routinePanel"><span class="button-icon" aria-hidden="true">⏰</span><span>Routine</span></button>
+    </nav>
+    <section id="scheduleView" class="view-panel" role="tabpanel" aria-labelledby="tabSchedule">
+      <div class="notice"><strong>Portal/import note:</strong> Sign in to Moodle or SIS, download your calendar as an <code>.ics</code> file, then import it below.</div>
+      <div class="grid">
+        <article class="panel"><h2>📅 Event scheduler</h2><form id="eventForm"><label for="title">Event title</label><input id="title" class="field" maxlength="120" required placeholder="e.g. CSC 2101 test"><label for="category">Category</label><select id="category" class="field"><option>Lab</option><option>Test</option><option>Quiz</option><option>Exam</option><option>Assignment</option><option>Academic Record</option><option>Church Service</option><option>Work Shift</option><option>Internship</option><option>Important Letter</option><option>Personal Appointment</option><option>Other</option></select><label for="when">Date and time</label><input id="when" class="field" type="datetime-local" required><label for="details">Notes (optional)</label><textarea id="details" class="field" rows="2" maxlength="500" placeholder="Location, course, or other details"></textarea><button type="submit"><span class="button-icon" aria-hidden="true">➕</span><span>Add event</span></button></form></article>
+        <article class="panel"><h2>📥 Import calendar</h2><p>Import an ICS calendar from Moodle or SIS.</p><button id="chooseICS" class="teal" type="button"><span class="button-icon" aria-hidden="true">📤</span><span>Import ICS</span></button><input id="icsPicker" type="file" accept=".ics,text/calendar"><p id="importMessage" class="muted" aria-live="polite"></p><button id="exportICS" class="secondary" type="button"><span class="button-icon" aria-hidden="true">📥</span><span>Export ICS</span></button></article>
+      </div>
+    </section>
+    <section id="eventsView" class="view-panel panel" role="tabpanel" aria-labelledby="tabEvents" hidden><h2>🗓️ Scheduled events</h2><p class="muted">Events stay saved until you delete them. Past events are marked as missed with their scheduled time.</p><ul id="eventList" class="event-list"></ul></section>
+    <section id="filesView" class="view-panel panel" role="tabpanel" aria-labelledby="tabFiles" hidden><h2>📁 Course files</h2><p>Files stay encrypted on this device until you delete them. Tap a file to open it or use its menu for more actions.</p><button id="chooseFiles" type="button"><span class="button-icon" aria-hidden="true">📎</span><span>Add files</span></button><input id="filePicker" type="file" multiple><p id="fileMessage" class="muted" role="status" aria-live="polite"></p><ul id="fileList" class="file-list"></ul></section>
+    <section id="routinePanel" class="view-panel panel" role="tabpanel" aria-labelledby="tabRoutine" aria-label="My Daily Routine" hidden>
       <h2>My Daily Routine</h2>
-      <p>Set independent routine alarms. Choose a time and repeat once, daily, or weekly on a chosen day. Keep the app open for alarms; missed occurrences while it is closed are skipped.</p>
-      <div class="actions"><button id="activateRoutineSound" class="teal" type="button">Activate routine alarm sound</button><button id="testRoutineSound" class="secondary" type="button" disabled>Test routine alarm sound</button></div>
+      <p>Set alarms to repeat once, daily, or weekly. Keep the app open; missed times while closed are skipped.</p>
+      <div class="actions"><button id="activateRoutineSound" class="teal" type="button"><span class="button-icon" aria-hidden="true">🔔</span><span>Enable</span></button><button id="testRoutineSound" class="secondary" type="button" disabled><span class="button-icon" aria-hidden="true">🔊</span><span>Test</span></button></div>
       <p id="routineAlarmStatus" class="muted" role="status" aria-live="polite">Routine alarms are separate from scheduled event alarms.</p>
       <form id="routineForm">
         <label for="routineTitle">Routine name</label>
@@ -129,21 +164,14 @@
             <option value="0">Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option>
           </select>
         </div>
-        <button type="submit">Add routine alarm</button>
+        <button type="submit"><span class="button-icon" aria-hidden="true">➕</span><span>Add routine</span></button>
       </form>
       <ul id="routineList" class="event-list"></ul>
     </section>
-    <div class="notice"><strong>Portal/import note:</strong> Sign in to Moodle or SIS, download your calendar as an <code>.ics</code> file, then import it below.</div>
-    <section class="grid">
-      <article class="panel"><h2>📅 Event scheduler</h2><form id="eventForm"><label for="title">Event title</label><input id="title" class="field" maxlength="120" required placeholder="e.g. CSC 2101 test"><label for="category">Category</label><select id="category" class="field"><option>Lab</option><option>Test</option><option>Quiz</option><option>Exam</option><option>Assignment</option><option>Academic Record</option><option>Church Service</option><option>Work Shift</option><option>Internship</option><option>Important Letter</option><option>Personal Appointment</option><option>Other</option></select><label for="when">Date and time</label><input id="when" class="field" type="datetime-local" required><label for="details">Notes (optional)</label><textarea id="details" class="field" rows="2" maxlength="500" placeholder="Location, course, or other details"></textarea><button type="submit">Add event</button></form></article>
-      <article class="panel"><h2>📥 Import calendar (.ics)</h2><p>Download an ICS calendar from Moodle or SIS, then select it here. Imported events are added to your scheduler.</p><button id="chooseICS" class="teal" type="button">Choose Moodle/SIS .ics file</button><input id="icsPicker" type="file" accept=".ics,text/calendar"><p id="importMessage" class="muted" aria-live="polite"></p><button id="exportICS" class="secondary" type="button">Export all events as .ics</button></article>
-    </section>
-    <section class="panel"><h2>🗓️ Scheduled events</h2><p class="muted">Events stay saved on this device until you delete them. Past events are marked as missed with their scheduled time.</p><ul id="eventList" class="event-list"></ul></section>
-    <section class="panel"><h2>📁 Course files &amp; documents</h2><p>Files are encrypted and saved locally in this browser until you delete them. Tap a file to open it, or use its three-dot menu to open, download, share, or delete it. Logging out does not remove your schedules or files.</p><button id="chooseFiles" type="button">Choose files to save on this device</button><input id="filePicker" type="file" multiple><p id="fileMessage" class="muted" role="status" aria-live="polite"></p><ul id="fileList" class="file-list"></ul></section>
     <p class="muted">Keep this page open for browser alarms. Use a calendar app for dependable background reminders.</p>
   </main>
 <!-- App logic: sections for auth, alarms, events, and encrypted file storage -->
-<script src="app.js?v=8"></script>
+<script src="app.js?v=12"></script>
 <script>
   let deferredInstallPrompt;
   const installButton = document.getElementById("installApp");

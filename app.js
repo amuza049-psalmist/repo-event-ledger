@@ -9,10 +9,28 @@
   let events=[], routines=[], audioContext=null, alarmTimer=null, activeAlarm=null, routineTimer=null, routineAlarmTimer=null, audioEnabled=false, routineAudioEnabled=false, encryptionKey=null, activityEntries=[];
   let routineSaveQueue=Promise.resolve();
   const $=id=>document.getElementById(id);
-  function setPasswordVisibility(button,visible){const input=$(button.getAttribute("aria-controls"));input.type=visible?"text":"password";button.textContent=visible?"Hide password":"Show password";button.setAttribute("aria-pressed",String(visible))}
+  function setButtonLabel(button,icon,label){const iconNode=document.createElement("span"),textNode=document.createElement("span");iconNode.className="button-icon";iconNode.setAttribute("aria-hidden","true");iconNode.textContent=icon;textNode.textContent=label;button.replaceChildren(iconNode,textNode)}
+  function setPasswordVisibility(button,visible){const input=$(button.getAttribute("aria-controls"));input.type=visible?"text":"password";setButtonLabel(button,"👁",visible?"Hide":"Show");button.setAttribute("aria-label",visible?"Hide password":"Show password");button.setAttribute("aria-pressed",String(visible))}
+  function setAppView(viewName){["schedule","events","files","routine"].forEach(name=>{const tab=$("tab"+name[0].toUpperCase()+name.slice(1)),panel=$(name==="routine"?"routinePanel":name+"View"),active=name===viewName;tab.setAttribute("aria-selected",String(active));tab.tabIndex=active?0:-1;panel.hidden=!active});if(viewName==="routine")renderRoutines()}
+  const appTabs=Array.from(document.querySelectorAll(".app-tab"));
+  appTabs.forEach((button,index)=>{
+    button.addEventListener("click",()=>setAppView(button.id.slice(3).toLowerCase()));
+    button.addEventListener("keydown",event=>{
+      let nextIndex=index;
+      if(event.key==="ArrowRight")nextIndex=(index+1)%appTabs.length;
+      else if(event.key==="ArrowLeft")nextIndex=(index+appTabs.length-1)%appTabs.length;
+      else if(event.key==="Home")nextIndex=0;
+      else if(event.key==="End")nextIndex=appTabs.length-1;
+      else return;
+      event.preventDefault();
+      appTabs[nextIndex].focus();
+      setAppView(appTabs[nextIndex].id.slice(3).toLowerCase());
+    });
+  });
   document.querySelectorAll(".password-toggle").forEach(button=>button.addEventListener("click",()=>{const input=$(button.getAttribute("aria-controls"));setPasswordVisibility(button,input.type==="password")}));
   function isValidComputerNumber(value){return /^2\d{9}$/.test(value)}
   function isValidPassword(value){return value.startsWith("unza")&&value.length>=6}
+  const PASSWORD_REQUIREMENT='Password must start with "unza" and contain at least 6 characters.';
   const textEncoder=new TextEncoder();
   function renderActivityLog(){const list=$("activityLog");if(!list)return;list.replaceChildren();if(!activityEntries.length){const empty=document.createElement("li");empty.textContent="No activity yet.";list.appendChild(empty);return}activityEntries.forEach(entry=>{const item=document.createElement("li");const message=document.createElement("div");message.textContent=entry.message;const time=document.createElement("small");time.textContent=new Date(entry.time).toLocaleString();item.append(message,time);list.appendChild(item)})}
   function addActivity(message){activityEntries.unshift({message,time:new Date().toISOString()});if(activityEntries.length>30)activityEntries.length=30;console.info("[MY UNILIFE(UNZA)]",message);renderActivityLog()}
@@ -24,7 +42,7 @@
   async function sealJson(value,key){const encrypted=await encryptBytes(textEncoder.encode(JSON.stringify(value)),key);return JSON.stringify({version:2,iv:toBase64(encrypted.iv),data:toBase64(new Uint8Array(encrypted.data))})}
   async function openJson(record,key){const bytes=await decryptBytes({iv:fromBase64(record.iv),data:fromBase64(record.data)},key);return JSON.parse(new TextDecoder().decode(bytes))}
   async function createEncryptedAccount(computerNumber,password){const salt=crypto.getRandomValues(new Uint8Array(16)),key=await deriveEncryptionKey(password,salt),verification=await encryptBytes(textEncoder.encode("UNZA Event Ledger account verification"),key);return{account:{version:2,computerNumber,salt:toBase64(salt),verification:{iv:toBase64(verification.iv),data:toBase64(new Uint8Array(verification.data))}},key}}
-  async function verifyEncryptedAccount(account,password){const key=await deriveEncryptionKey(password,fromBase64(account.salt));let verification;try{const bytes=await decryptBytes({iv:fromBase64(account.verification.iv),data:fromBase64(account.verification.data)},key);verification=new TextDecoder().decode(bytes)}catch(_){throw new Error("Incorrect password.")}if(verification!=="UNZA Event Ledger account verification")throw new Error("Incorrect password.");return key}
+  async function verifyEncryptedAccount(account,password){const key=await deriveEncryptionKey(password,fromBase64(account.salt));let verification;try{const bytes=await decryptBytes({iv:fromBase64(account.verification.iv),data:fromBase64(account.verification.data)},key);verification=new TextDecoder().decode(bytes)}catch(_){throw new Error("Wrong password.")}if(verification!=="UNZA Event Ledger account verification")throw new Error("Wrong password.");return key}
   async function encryptStoredFile(file,key){const bytes=new Uint8Array(await file.data.arrayBuffer()),encrypted=await encryptBytes(bytes,key),metadata=await encryptBytes(textEncoder.encode(JSON.stringify({name:file.name,size:file.size,type:file.type,added:file.added})),key);return{id:file.id,encrypted:true,metadataIv:metadata.iv,metadata:metadata.data,dataIv:encrypted.iv,data:encrypted.data}}
   async function decryptStoredFile(file,key){if(!file.encrypted)throw new Error("A stored file is not encrypted.");const [bytes,metadataBytes]=await Promise.all([decryptBytes({iv:file.dataIv,data:file.data},key),decryptBytes({iv:file.metadataIv,data:file.metadata},key)]),metadata=JSON.parse(new TextDecoder().decode(metadataBytes));return{id:file.id,...metadata,data:new Blob([bytes],{type:metadata.type})}}
   async function migrateStoredData(key){const previousEvents=localStorage.getItem(EVENTS_KEY);let currentEvents=[];if(previousEvents){currentEvents=JSON.parse(previousEvents);if(!Array.isArray(currentEvents))throw new Error("Existing event data is invalid; it was not changed.")}const previousFiles=await fileTransaction("readonly",store=>store.getAll());const encryptedEvents=await sealJson(currentEvents,key);const encryptedFiles=await Promise.all(previousFiles.map(file=>file.encrypted?file:encryptStoredFile(file,key)));try{localStorage.setItem(EVENTS_KEY,encryptedEvents);await fileTransaction("readwrite",store=>{encryptedFiles.forEach(file=>store.put(file));return null})}catch(error){if(previousEvents===null)localStorage.removeItem(EVENTS_KEY);else localStorage.setItem(EVENTS_KEY,previousEvents);throw error}}
@@ -48,10 +66,35 @@
   function showAuthMode(mode){const login=mode==="login";$("loginForm").hidden=!login;$("registerForm").hidden=login;$("showLogin").classList.toggle("active",login);$("showRegister").classList.toggle("active",!login);$("showLogin").setAttribute("aria-selected",String(login));$("showRegister").setAttribute("aria-selected",String(!login));$("authMessage").textContent=""}
   $("showLogin").addEventListener("click",()=>showAuthMode("login"));
   $("showRegister").addEventListener("click",()=>showAuthMode("register"));
-  $("loginForm").addEventListener("submit",async event=>{event.preventDefault();const computerNumber=$("loginComputerNumber").value.trim(),password=$("loginPassword").value;if(!isValidComputerNumber(computerNumber)){$("authMessage").textContent="Enter a 10-digit computer number starting with 2.";return}if(!isValidPassword(password)){$("authMessage").textContent="Password must start with unza and contain at least 6 characters.";return}try{const account=JSON.parse(localStorage.getItem(ACCOUNT_KEY)||"null");if(!account||account.computerNumber!==computerNumber){$("authMessage").textContent="No account found for this computer number.";return}let key;if(account.version===2){key=await verifyEncryptedAccount(account,password)}else{const legacyHash=await crypto.subtle.digest("SHA-256",textEncoder.encode(password));const hash=Array.from(new Uint8Array(legacyHash)).map(byte=>byte.toString(16).padStart(2,"0")).join("");if(account.passwordHash?account.passwordHash!==hash:account.password!==password)throw new Error("Incorrect password.");const encrypted=await createEncryptedAccount(computerNumber,password);await saveAccountAndMigrate(encrypted.account,encrypted.key);key=encrypted.key}$("loginPassword").value="";setPasswordVisibility($("toggleLoginPassword"),false);await openApp(computerNumber,key)}catch(error){$("authMessage").textContent=error.message==="Incorrect password."?error.message:"Could not unlock or protect local data: "+error.message}});
-  $("registerForm").addEventListener("submit",async event=>{event.preventDefault();const computerNumber=$("registerComputerNumber").value.trim(),password=$("registerPassword").value;if(!isValidComputerNumber(computerNumber)){$("authMessage").textContent="Enter a 10-digit computer number starting with 2.";return}if(!isValidPassword(password)){$("authMessage").textContent="Password must start with unza and contain at least 6 characters.";return}try{if(localStorage.getItem(ACCOUNT_KEY)){showAuthMode("login");$("authMessage").textContent="An account already exists in this browser. Log in instead.";return}const encrypted=await createEncryptedAccount(computerNumber,password);await saveAccountAndMigrate(encrypted.account,encrypted.key);$("registerPassword").value="";setPasswordVisibility($("toggleRegisterPassword"),false);await openApp(computerNumber,encrypted.key)}catch(error){$("authMessage").textContent="Could not create or protect the account data: "+error.message}});
-  async function openApp(computerNumber,key){const decryptedEvents=await loadEncryptedEvents(key),decryptedRoutines=await loadEncryptedRoutines(key);if(normalizeRoutineSchedules(decryptedRoutines,Date.now()))await saveRoutineSnapshot(decryptedRoutines,key);encryptionKey=key;events=decryptedEvents;routines=decryptedRoutines;$("loginScreen").style.display="none";$("app").style.display="block";$("loggedInUser").textContent="Computer number: "+computerNumber;renderEvents();renderRoutines();renderActivityLog();addActivity("Logged in.");await renderFiles()}
-  $("logout").addEventListener("click",()=>{addActivity("Logged out.");encryptionKey=null;events=[];routines=[];clearFilePreviewUrls();audioEnabled=false;routineAudioEnabled=false;clearActiveAlarm();clearRoutineAlarm();$("eventList").replaceChildren();$("routineList").replaceChildren();$("fileList").replaceChildren();$("filePicker").value="";$("activateAlarm").disabled=false;$("activateAlarm").textContent="Activate alarm sound";$("activateRoutineSound").disabled=false;$("activateRoutineSound").textContent="Activate routine alarm sound";$("testRoutineSound").disabled=true;$("routineAlarmStatus").textContent="Routine alarms are separate from scheduled event alarms.";$("routinePanel").hidden=true;$("toggleRoutinePanel").setAttribute("aria-expanded","false");$("app").style.display="none";$("loginScreen").style.display="flex";$("loginForm").reset();$("registerForm").reset();showAuthMode("login");$("activityLogPanel").hidden=true;$("activityLogButton").setAttribute("aria-expanded","false")});
+  $("loginForm").addEventListener("submit",async event=>{
+    event.preventDefault();
+    const computerNumber=$("loginComputerNumber").value.trim(),password=$("loginPassword").value;
+    if(!isValidComputerNumber(computerNumber)){$("authMessage").textContent="Enter a 10-digit computer number starting with 2.";return}
+    if(!password){$("authMessage").textContent="Enter your password.";return}
+    try{
+      const account=JSON.parse(localStorage.getItem(ACCOUNT_KEY)||"null");
+      if(!account||account.computerNumber!==computerNumber){$("authMessage").textContent="No account found for this computer number.";return}
+      let key;
+      if(account.version===2)key=await verifyEncryptedAccount(account,password);
+      else{
+        const legacyHash=await crypto.subtle.digest("SHA-256",textEncoder.encode(password));
+        const hash=Array.from(new Uint8Array(legacyHash)).map(byte=>byte.toString(16).padStart(2,"0")).join("");
+        if(account.passwordHash?account.passwordHash!==hash:account.password!==password)throw new Error("Wrong password.");
+        const encrypted=await createEncryptedAccount(computerNumber,password);
+        await saveAccountAndMigrate(encrypted.account,encrypted.key);
+        key=encrypted.key;
+      }
+      $("loginPassword").value="";
+      setPasswordVisibility($("toggleLoginPassword"),false);
+      await openApp(computerNumber,key);
+    }catch(error){
+      const wrongPassword=error.message==="Wrong password."||error.message==="Incorrect password.";
+      $("authMessage").textContent=wrongPassword?"Wrong password. "+PASSWORD_REQUIREMENT:"Could not unlock or protect local data: "+error.message;
+    }
+  });
+  $("registerForm").addEventListener("submit",async event=>{event.preventDefault();const computerNumber=$("registerComputerNumber").value.trim(),password=$("registerPassword").value;if(!isValidComputerNumber(computerNumber)){$("authMessage").textContent="Enter a 10-digit computer number starting with 2.";return}if(!isValidPassword(password)){$("authMessage").textContent=PASSWORD_REQUIREMENT;return}try{if(localStorage.getItem(ACCOUNT_KEY)){showAuthMode("login");$("authMessage").textContent="An account already exists in this browser. Log in instead.";return}const encrypted=await createEncryptedAccount(computerNumber,password);await saveAccountAndMigrate(encrypted.account,encrypted.key);$("registerPassword").value="";setPasswordVisibility($("toggleRegisterPassword"),false);await openApp(computerNumber,encrypted.key)}catch(error){$("authMessage").textContent="Could not create or protect the account data: "+error.message}});
+  async function openApp(computerNumber,key){const decryptedEvents=await loadEncryptedEvents(key),decryptedRoutines=await loadEncryptedRoutines(key);if(normalizeRoutineSchedules(decryptedRoutines,Date.now()))await saveRoutineSnapshot(decryptedRoutines,key);encryptionKey=key;events=decryptedEvents;routines=decryptedRoutines;$("loginScreen").style.display="none";$("app").style.display="block";$("loggedInUser").textContent="Computer number: "+computerNumber;setAppView("schedule");renderEvents();renderRoutines();renderActivityLog();addActivity("Logged in.");await renderFiles()}
+  $("logout").addEventListener("click",()=>{addActivity("Logged out.");encryptionKey=null;events=[];routines=[];clearFilePreviewUrls();audioEnabled=false;routineAudioEnabled=false;clearActiveAlarm();clearRoutineAlarm();$("eventList").replaceChildren();$("routineList").replaceChildren();$("fileList").replaceChildren();$("filePicker").value="";$("activateAlarm").disabled=false;setButtonLabel($("activateAlarm"),"🔔","Enable");$("activateRoutineSound").disabled=false;setButtonLabel($("activateRoutineSound"),"🔔","Enable");$("testRoutineSound").disabled=true;$("routineAlarmStatus").textContent="Routine alarms are separate from scheduled event alarms.";$("app").style.display="none";setAppView("schedule");$("loginScreen").style.display="flex";$("loginForm").reset();$("registerForm").reset();showAuthMode("login");$("activityLogPanel").hidden=true;$("activityLogButton").setAttribute("aria-expanded","false")});
   $("activityLogButton").addEventListener("click",()=>{const panel=$("activityLogPanel"),opening=panel.hidden;panel.hidden=!opening;$("activityLogButton").setAttribute("aria-expanded",String(opening));renderActivityLog()});
   let eventSaveQueue=Promise.resolve();
   function saveEvents(){if(!encryptionKey)return Promise.reject(new Error("Log in before saving event data."));const key=encryptionKey,snapshot=JSON.stringify(events);const operation=eventSaveQueue.catch(()=>{}).then(async()=>{try{localStorage.setItem(EVENTS_KEY,await sealJson(JSON.parse(snapshot),key))}catch(error){alert("Could not encrypt or save events. Check browser storage and try again.");throw error}});eventSaveQueue=operation;return operation}
@@ -85,12 +128,12 @@
       const alarm=document.createElement("button");
       alarm.type="button";
       alarm.className="teal";
-      alarm.textContent="Phone alarm (.ics)";
+      setButtonLabel(alarm,"⏰","Phone alarm");
       alarm.addEventListener("click",()=>{downloadICS([event],event.title);addActivity("Exported phone alarm: "+event.title)});
       const remove=document.createElement("button");
       remove.type="button";
       remove.className="danger";
-      remove.textContent="Delete";
+      setButtonLabel(remove,"🗑","Delete");
       remove.addEventListener("click",async()=>{
         const previousEvents=events;
         events=events.filter(item=>item.id!==event.id);
@@ -136,7 +179,7 @@
       const remove=document.createElement("button");
       remove.type="button";
       remove.className="danger";
-      remove.textContent="Delete";
+      setButtonLabel(remove,"🗑","Delete");
       remove.addEventListener("click",async()=>{
         const previous=routines;
         routines=routines.filter(item=>item.id!==routine.id);
@@ -178,7 +221,6 @@
   $("routineDate").value=[today.getFullYear(),String(today.getMonth()+1).padStart(2,"0"),String(today.getDate()).padStart(2,"0")].join("-");
   $("routineWeekday").value=String(today.getDay());
   updateRoutineFields();
-  $("toggleRoutinePanel").addEventListener("click",()=>{const panel=$("routinePanel"),opening=panel.hidden;panel.hidden=!opening;$("toggleRoutinePanel").setAttribute("aria-expanded",String(opening));if(opening)renderRoutines()});
   $("routineForm").addEventListener("submit",async event=>{
     event.preventDefault();
     const title=$("routineTitle").value.trim(),time=$("routineTime").value,repeat=$("routineRepeat").value;
@@ -194,10 +236,10 @@
     try{await saveRoutineSnapshot(routines,encryptionKey);renderRoutines();event.currentTarget.reset();$("routineDate").value=[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,"0"),String(new Date().getDate()).padStart(2,"0")].join("-");$("routineWeekday").value=String(new Date().getDay());updateRoutineFields();$("routineAlarmStatus").textContent="Routine alarm saved and encrypted.";addActivity("Added routine alarm: "+title)}
     catch(error){routines=previous;renderRoutines();$("routineAlarmStatus").textContent="Could not save this routine alarm: "+error.message}
   });
-  $("activateRoutineSound").addEventListener("click",async function(){const enabled=await startAudioFromGesture();if(!enabled){$("routineAlarmStatus").textContent="Routine sound could not be unlocked. Allow audio for this page, then try again.";return}routineAudioEnabled=true;const notificationDenied=await requestNotificationPermission();$("routineAlarmStatus").textContent=notificationDenied?"Routine sound activated. Notifications are blocked; keep this page open for sound.":"Routine alarm sound activated. Keep this page open for audible alarms.";this.textContent="Routine alarm sound active";this.disabled=true;$("testRoutineSound").disabled=false;await ring(true)});
+  $("activateRoutineSound").addEventListener("click",async function(){const enabled=await startAudioFromGesture();if(!enabled){$("routineAlarmStatus").textContent="Routine sound could not be unlocked. Allow audio for this page, then try again.";return}routineAudioEnabled=true;const notificationDenied=await requestNotificationPermission();$("routineAlarmStatus").textContent=notificationDenied?"Routine sound activated. Notifications are blocked; keep this page open for sound.":"Routine alarm sound activated. Keep this page open for audible alarms.";setButtonLabel(this,"✓","Enabled");this.disabled=true;$("testRoutineSound").disabled=false;await ring(true)});
   $("testRoutineSound").addEventListener("click",async()=>{if(!routineAudioEnabled){$("routineAlarmStatus").textContent="Activate routine alarm sound first.";return}await ring(true);$("routineAlarmStatus").textContent="Routine alarm test sound played."});
   $("stopRoutineAlarm").addEventListener("click",()=>clearRoutineAlarm());
-  $("activateAlarm").addEventListener("click",async function(){const enabled=await startAudioFromGesture();if(!enabled){setAlarmStatus("Sound could not be unlocked. Allow audio for this page, then try again.");return}audioEnabled=true;const notificationDenied=await requestNotificationPermission();setAlarmStatus(notificationDenied?"Alarm sound activated. Browser notifications are blocked; keep this page open for sound.":"Alarm sound activated. Keep this page open for audible alarms.");this.textContent="Alarm sound active";this.disabled=true;$("testAlarm").disabled=false;await ring();});
+  $("activateAlarm").addEventListener("click",async function(){const enabled=await startAudioFromGesture();if(!enabled){setAlarmStatus("Sound could not be unlocked. Allow audio for this page, then try again.");return}audioEnabled=true;const notificationDenied=await requestNotificationPermission();setAlarmStatus(notificationDenied?"Alarm sound activated. Browser notifications are blocked; keep this page open for sound.":"Alarm sound activated. Keep this page open for audible alarms.");setButtonLabel(this,"✓","Enabled");this.disabled=true;$("testAlarm").disabled=false;await ring();});
   $("testAlarm").addEventListener("click",async function(){if(!audioEnabled){setAlarmStatus("Activate alarm sound first.");return}await ring();setAlarmStatus("Test sound played. Alarm sound is active.");});
   $("stopAlarm").addEventListener("click",()=>{clearActiveAlarm();checkAlarms()});
   setInterval(checkAlarms,1000);routineTimer=setInterval(checkRoutineAlarms,1000);document.addEventListener("visibilitychange",()=>{if(!document.hidden){checkAlarms();checkRoutineAlarms()}});renderEvents();
@@ -247,22 +289,22 @@
       summary.setAttribute("aria-label","Actions for "+file.name);
       const options=document.createElement("div");
       options.className="file-menu";
-      const addAction=(label,action)=>{
+      const addAction=(icon,label,action)=>{
         const button=document.createElement("button");
         button.type="button";
-        button.textContent=label;
+        setButtonLabel(button,icon,label);
         button.addEventListener("click",async()=>{menu.open=false;try{await action()}catch(error){console.error("Could not complete the file action.",error);setFileMessage(error.message||"Could not complete this file action.")}});
         options.appendChild(button);
       };
       const openAction=document.createElement("a");
-      openAction.textContent="Open";
+      setButtonLabel(openAction,"↗","Open");
       openAction.className="file-menu-open";
       if(previewUrl){openAction.href=previewUrl;openAction.target="_blank";openAction.rel="noopener noreferrer";openAction.addEventListener("click",()=>{menu.open=false;setFileMessage("Opening "+file.name+". Your browser may download file types it cannot preview.");addActivity("Opened file: "+file.name)})}
       else{openAction.setAttribute("aria-disabled","true")}
       options.appendChild(openAction);
-      addAction("Download",()=>downloadStoredFile(file));
-      addAction("Share",()=>shareStoredFile(file));
-      addAction("Delete",async()=>{
+      addAction("⬇","Download",()=>downloadStoredFile(file));
+      addAction("↗","Share",()=>shareStoredFile(file));
+      addAction("🗑","Delete",async()=>{
         await fileTransaction("readwrite",store=>store.delete(file.id));
         addActivity("Deleted file: "+file.name);
         await renderFiles();
