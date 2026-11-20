@@ -2,7 +2,7 @@
 
 ## Project overview
 
-- This repository is a static, client-side UNZA Event Ledger portal. It is deployed as a GitHub Pages-compatible single-page application.
+- This repository is a static, client-side MY UNILIFE(UNZA) portal. It is deployed as a GitHub Pages-compatible single-page application.
 - `index.html` is the source of truth and contains the complete HTML, CSS, and JavaScript. Keep application changes in this file unless the repository structure is intentionally expanded.
 - `README.md` describes project features and usage. Update it when user-facing behavior or repository structure changes.
 - There is no package manager, build step, framework, test runner, or backend in the current repository.
@@ -23,6 +23,7 @@
 - Events are encrypted with Web Crypto (AES-GCM, using a PBKDF2-derived account key) before persistence in `localStorage` under `unza-event-ledger-events-v1`. Never store decrypted event data or passwords in browser storage.
 - Uploaded files are encrypted with the same in-memory account key before persistence in IndexedDB database `unza-event-ledger-files-v1`, object store `files`, with a 25 MB per-file limit.
 - The account encryption key exists only while the user is logged in. Do not add automatic session restoration; logout/reload should require the password again. Forgotten passwords cannot recover encrypted data.
+- The forgotten-password reset deletes the account and encrypted event/file data from this browser; it does not recover the old data.
 - Treat the local login as a lock for encrypted local data, not protection against a compromised browser/device or modified client code. Use HTTPS/Web Crypto; do not claim server-backed security.
 - Calendar imports and exports use `.ics` text. Preserve CRLF output, escaping, VEVENT structure, UID/DTSTAMP/DTSTART fields, and the existing duplicate detection by title and start time.
 - Alarm scheduling is browser-limited. Preserve future-event validation, page-visible timer behavior, Web Audio activation, Notification permission handling, and the stop-alarm behavior.

@@ -1,4 +1,4 @@
-// Pure logic for the UNZA Event Ledger: validation, formatting, ICS parsing,
+// Pure logic for MY UNILIFE(UNZA): validation, formatting, ICS parsing,
 // encryption helpers, and alarm scheduling. No DOM access here, so these
 // functions can run in Node for tests as well as in the browser.
 "use strict";
@@ -52,7 +52,7 @@ function parseICS(text) {
 }
 
 function buildICS(items) {
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//UNZA Event Ledger//EN", "CALSCALE:GREGORIAN"];
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//MY UNILIFE(UNZA)//EN", "CALSCALE:GREGORIAN"];
   items.forEach(item => {
     const date = new Date(item.when);
     if (Number.isNaN(date.getTime())) return;

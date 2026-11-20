@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0d1117">
-  <title>UNZA Event Ledger</title>
+  <title>MY UNILIFE(UNZA)</title>
+  <meta name="description" content="MY UNILIFE(UNZA): schedule academic and personal events and keep encrypted files on your device.">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <style>
     :root { --bg:#0d1117; --panel:rgba(22,27,34,.94); --line:#30363d; --text:#f0f6fc; --muted:#c9d1d9; --teal:#0d9488; --blue:#0969da; --red:#da3633; }
     * { box-sizing:border-box; }
@@ -33,9 +36,14 @@
     #loginScreen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
     .auth-card { width:min(420px,100%); padding:24px; border:1px solid var(--line); border-radius:12px; background:var(--panel); backdrop-filter:blur(8px); }
     .auth-card h1 { margin-bottom:6px; } .auth-card p { margin-bottom:16px; } .auth-card .field { margin-bottom:12px; }
+    .password-field { display:flex; align-items:center; gap:8px; }
+    .password-field .field { flex:1; min-width:0; width:auto; margin:0; }
+    .password-toggle { flex-shrink:0; background:#30363d; }
+    .auth-card .password-field { margin-bottom:12px; }
     .auth-tabs { display:flex; gap:8px; margin-bottom:18px; }
     .auth-tabs button { flex:1; background:#30363d; } .auth-tabs button.active { background:var(--blue); }
     .auth-message { min-height:24px; margin:10px 0 0; } .auth-card form button[type=submit] { width:100%; }
+    #installApp[hidden] { display:none; }
     #userSession { display:flex; align-items:center; gap:9px; color:var(--muted); }
     #userSession button { background:#30363d; }
     #activityLogWrap { position:relative; }
@@ -53,8 +61,8 @@
   <div id="alarmBanner" class="alarm" role="alert" aria-live="assertive"><div id="alarmText"></div><button id="stopAlarm" class="secondary">Stop alarm</button></div>
   <section id="loginScreen" aria-label="Account access">
     <article class="auth-card">
-      <h1>🎓 UNZA Event Ledger</h1>
-      <p>Sign in or create an account for this browser. Use a long, unique password; forgotten passwords cannot be recovered.</p>
+      <h1>🎓 MY UNILIFE(UNZA)</h1>
+      <p>Sign in or create an account for this browser. Use a long, unique password. If you forget it, you can reset this browser's account, but its saved data will be permanently deleted.</p>
       <div class="auth-tabs" role="tablist" aria-label="Account options">
         <button id="showLogin" class="active" type="button" role="tab" aria-selected="true">Log in</button>
         <button id="showRegister" type="button" role="tab" aria-selected="false">Create account</button>
@@ -63,21 +71,25 @@
         <label for="loginComputerNumber">Computer number</label>
         <input id="loginComputerNumber" class="field" name="computerNumber" inputmode="numeric" autocomplete="username" maxlength="10" placeholder="e.g. 2024067832" required>
         <label for="loginPassword">Password</label>
-        <input id="loginPassword" class="field" name="password" type="password" autocomplete="current-password" minlength="6" required>
+        <div class="password-field"><input id="loginPassword" class="field" name="password" type="password" autocomplete="current-password" minlength="6" required><button id="toggleLoginPassword" class="password-toggle" type="button" aria-controls="loginPassword" aria-pressed="false">Show password</button></div>
         <button type="submit">Log in</button>
       </form>
       <form id="registerForm" hidden>
         <label for="registerComputerNumber">Computer number</label>
         <input id="registerComputerNumber" class="field" name="computerNumber" inputmode="numeric" autocomplete="username" maxlength="10" pattern="2[0-9]{9}" placeholder="10 digits starting with 2" required>
         <label for="registerPassword">Password</label>
-        <input id="registerPassword" class="field" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="Start with unza and use at least 6 characters" required>
+        <div class="password-field"><input id="registerPassword" class="field" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="Start with unza and use at least 6 characters" required><button id="toggleRegisterPassword" class="password-toggle" type="button" aria-controls="registerPassword" aria-pressed="false">Show password</button></div>
         <button type="submit">Create account</button>
       </form>
+      <button id="resetAccount" class="danger" type="button">Forgot password? Reset account</button>
+      <p class="muted">Resetting permanently deletes this browser's account, saved events, and stored files. It cannot recover them.</p>
       <p id="authMessage" class="auth-message muted" role="status" aria-live="polite"></p>
+      <button id="installApp" class="teal" type="button" hidden>Install app</button>
+      <p id="installHelp" class="muted" role="status" aria-live="polite">To add this app to your phone, open your browser menu and choose "Add to Home Screen" or "Install app".</p>
     </article>
   </section>
   <main id="app">
-    <header><div><h1>🎓 UNZA Event Ledger</h1><p>Schedule academic and personal events, import Moodle/SIS calendars, and keep your files on this device.</p></div><div id="userSession"><span id="loggedInUser"></span><div id="activityLogWrap"><button id="activityLogButton" type="button" aria-expanded="false" aria-controls="activityLogPanel">Activity log</button><div id="activityLogPanel" role="region" aria-label="Recent activity" hidden><ul id="activityLog"></ul></div></div><button id="logout" type="button">Log out</button></div></header>
+    <header><div><h1>🎓 MY UNILIFE(UNZA)</h1><p>Schedule academic and personal events, import Moodle/SIS calendars, and keep your files on this device.</p></div><div id="userSession"><span id="loggedInUser"></span><div id="activityLogWrap"><button id="activityLogButton" type="button" aria-expanded="false" aria-controls="activityLogPanel">Activity log</button><div id="activityLogPanel" role="region" aria-label="Recent activity" hidden><ul id="activityLog"></ul></div></div><button id="logout" type="button">Log out</button></div></header>
     <section class="status"><p id="alarmStatus">Alarms are not activated. Keep this page open and enable sound for browser alarms.</p><div class="actions"><button id="activateAlarm" class="teal">Activate alarm sound</button><button id="testAlarm" class="secondary" type="button">Test alarm sound</button></div></section>
     <div class="notice"><strong>Portal/import note:</strong> Sign in to Moodle or SIS, download your calendar as an <code>.ics</code> file, then import it below.</div>
     <section class="grid">
@@ -89,6 +101,38 @@
     <p class="muted">Keep this page open for browser alarms. Use a calendar app for dependable background reminders.</p>
   </main>
 <!-- App logic: sections for auth, alarms, events, and encrypted file storage -->
-<script src="app.js"></script>
+<script src="app.js?v=3"></script>
+<script>
+  let deferredInstallPrompt;
+  const installButton = document.getElementById("installApp");
+  const installHelp = document.getElementById("installHelp");
+  window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    installButton.hidden = false;
+    installHelp.textContent = "Install MY UNILIFE(UNZA) directly from this browser.";
+  });
+  installButton.addEventListener("click", async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    installButton.hidden = true;
+    installHelp.textContent = choice.outcome === "accepted"
+      ? "MY UNILIFE(UNZA) was installed."
+      : "To install later, open your browser menu and choose Install app or Add to Home Screen.";
+  });
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    installButton.hidden = true;
+    installHelp.textContent = "MY UNILIFE(UNZA) is installed on this device.";
+  });
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./service-worker.js")
+        .catch(error => console.error("Offline support could not be enabled.", error));
+    });
+  }
+</script>
 </body>
 </html>
