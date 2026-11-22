@@ -1,7 +1,7 @@
 "use strict";
 
-const CACHE_NAME = "unza-event-ledger-pwa-v14";
-const APP_SHELL = ["./", "./index.html", "./core.js", "./app.js?v=14", "./icon.svg", "./icon-192.png", "./icon-512.png", "./unza-library.jpg", "./manifest.webmanifest"];
+const CACHE_NAME = "unza-event-ledger-pwa-v15";
+const APP_SHELL = ["./", "./index.html", "./core.js", "./app.js?v=15", "./icon.svg", "./icon-192.png", "./icon-512.png", "./unza-library.jpg", "./manifest.webmanifest"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));

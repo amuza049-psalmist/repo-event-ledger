@@ -153,10 +153,10 @@
     </header>
 
     <nav class="app-nav" aria-label="App sections" role="tablist">
-      <button id="tabSchedule" type="button" role="tab" aria-selected="true" aria-controls="scheduleView">Schedule</button>
-      <button id="tabEvents" type="button" role="tab" aria-selected="false" aria-controls="eventsView">Events</button>
-      <button id="tabFiles" type="button" role="tab" aria-selected="false" aria-controls="filesView">Files</button>
-      <button id="tabRoutine" type="button" role="tab" aria-selected="false" aria-controls="routinePanel">Routine</button>
+      <button id="tabSchedule" class="app-tab" type="button" role="tab" aria-selected="true" aria-controls="scheduleView">Schedule</button>
+      <button id="tabEvents" class="app-tab" type="button" role="tab" aria-selected="false" aria-controls="eventsView">Events</button>
+      <button id="tabFiles" class="app-tab" type="button" role="tab" aria-selected="false" aria-controls="filesView">Files</button>
+      <button id="tabRoutine" class="app-tab" type="button" role="tab" aria-selected="false" aria-controls="routinePanel">Routine</button>
     </nav>
 
     <section id="scheduleView" class="view-panel">
@@ -276,7 +276,7 @@
   </main>
 
   <script src="core.js"></script>
-  <script src="app.js?v=14"></script>
+  <script src="app.js?v=15"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
