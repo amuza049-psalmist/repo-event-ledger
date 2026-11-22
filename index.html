@@ -86,7 +86,205 @@
   </style>
 </head>
 <body>
-  <!-- App content remains unchanged -->
-  <script src="app.js?v=13"></script>
+  <div id="alarmBanner" class="alarm" role="alert" aria-live="assertive">
+    <div id="alarmText"></div>
+    <button id="stopAlarm" type="button" class="secondary">Stop alarm</button>
+  </div>
+
+  <div id="routineAlarmBanner" class="alarm routine-alarm" role="alert" aria-live="assertive">
+    <div id="routineAlarmText"></div>
+    <button id="stopRoutineAlarm" type="button" class="secondary">Stop routine alarm</button>
+  </div>
+
+  <section id="loginScreen" aria-label="Account access">
+    <article class="auth-card">
+      <h1>MY UNILIFE(UNZA)</h1>
+      <p>Sign in or create an account in this browser. Forgotten passwords cannot recover encrypted data.</p>
+      <div class="auth-tabs" role="tablist" aria-label="Account options">
+        <button id="showLogin" class="active" type="button" role="tab" aria-selected="true">Log in</button>
+        <button id="showRegister" type="button" role="tab" aria-selected="false">Create account</button>
+      </div>
+      <form id="loginForm">
+        <label for="loginComputerNumber">Computer number</label>
+        <input id="loginComputerNumber" class="field" name="computerNumber" inputmode="numeric" autocomplete="username" maxlength="10" pattern="2[0-9]{9}" placeholder="e.g. 2024067832" required>
+        <label for="loginPassword">Password</label>
+        <div class="password-field">
+          <input id="loginPassword" class="field" name="password" type="password" autocomplete="current-password" minlength="6" required>
+          <button id="toggleLoginPassword" class="password-toggle" type="button" aria-controls="loginPassword" aria-label="Show password" aria-pressed="false">Show</button>
+        </div>
+        <button type="submit">Log in</button>
+      </form>
+      <form id="registerForm" hidden>
+        <label for="registerComputerNumber">Computer number</label>
+        <input id="registerComputerNumber" class="field" name="computerNumber" inputmode="numeric" autocomplete="username" maxlength="10" pattern="2[0-9]{9}" placeholder="10 digits starting with 2" required>
+        <label for="registerPassword">Password</label>
+        <div class="password-field">
+          <input id="registerPassword" class="field" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="Start with unza and use at least 6 characters" required>
+          <button id="toggleRegisterPassword" class="password-toggle" type="button" aria-controls="registerPassword" aria-label="Show password" aria-pressed="false">Show</button>
+        </div>
+        <p class="field-hint">Password must start with "unza" and contain at least 6 characters.</p>
+        <button type="submit">Create account</button>
+      </form>
+      <p id="authMessage" class="auth-message muted" role="status" aria-live="polite"></p>
+      <button id="resetAccount" class="forgot-button" type="button">Forgot password? Reset local account</button>
+      <p class="reset-warning muted">Reset permanently deletes this browser's account, events, routines, and files.</p>
+    </article>
+  </section>
+
+  <main id="app">
+    <header class="dashboard-header">
+      <div class="dashboard-hero">
+        <img src="unza-library.jpg" alt="University of Zambia Main Library">
+      </div>
+      <div class="app-brand">
+        <h1>MY UNILIFE(UNZA)</h1>
+        <p>Student and personal portal</p>
+      </div>
+      <div id="userSession">
+        <span id="loggedInUser"></span>
+        <div id="activityLogWrap">
+          <button id="activityLogButton" type="button" aria-expanded="false" aria-controls="activityLogPanel">Activity log</button>
+          <div id="activityLogPanel" role="region" aria-label="Recent activity" hidden>
+            <ul id="activityLog"></ul>
+          </div>
+        </div>
+        <button id="logout" type="button">Log out</button>
+      </div>
+    </header>
+
+    <nav class="app-nav" aria-label="App sections" role="tablist">
+      <button id="tabSchedule" type="button" role="tab" aria-selected="true" aria-controls="scheduleView">Schedule</button>
+      <button id="tabEvents" type="button" role="tab" aria-selected="false" aria-controls="eventsView">Events</button>
+      <button id="tabFiles" type="button" role="tab" aria-selected="false" aria-controls="filesView">Files</button>
+      <button id="tabRoutine" type="button" role="tab" aria-selected="false" aria-controls="routinePanel">Routine</button>
+    </nav>
+
+    <section id="scheduleView" class="view-panel">
+      <section class="status">
+        <p id="alarmStatus">Alarms are not activated. Keep this page open and enable sound for browser alarms.</p>
+        <div class="actions">
+          <button id="activateAlarm" class="teal" type="button">🔔 Enable</button>
+          <button id="testAlarm" class="secondary" type="button" disabled>Test alarm sound</button>
+        </div>
+      </section>
+      <article class="panel">
+        <h2>UNZA portals</h2>
+        <div class="links">
+          <a href="https://moodle.unza.zm/" target="_blank" rel="noopener noreferrer">UNZA Moodle</a>
+          <a href="https://sis.unza.zm/" target="_blank" rel="noopener noreferrer">UNZA SIS</a>
+        </div>
+      </article>
+      <section class="grid">
+        <article class="panel">
+          <h2>Calendar import and export</h2>
+          <p>Export a calendar from Moodle or SIS, then import it here.</p>
+          <button id="chooseICS" class="teal" type="button">Choose Moodle/SIS .ics file</button>
+          <input id="icsPicker" type="file" accept=".ics,text/calendar">
+          <p id="importMessage" class="muted" aria-live="polite"></p>
+          <button id="exportICS" class="secondary" type="button">Export all events as .ics</button>
+        </article>
+        <article class="panel">
+          <h2>Upcoming and missed events</h2>
+          <ul id="eventList" class="event-list"></ul>
+        </article>
+      </section>
+    </section>
+
+    <section id="eventsView" class="view-panel" hidden>
+      <section class="grid">
+        <article class="panel">
+          <h2>📅 Add event</h2>
+          <form id="eventForm">
+            <label for="title">Event title</label>
+            <input id="title" class="field" maxlength="120" required placeholder="e.g. CSC 2101 test">
+            <label for="category">Category</label>
+            <select id="category" class="field">
+              <option>Lab</option><option>Test</option><option>Quiz</option><option>Exam</option>
+              <option>Assignment</option><option>Academic Record</option><option>Church Service</option>
+              <option>Work Shift</option><option>Internship</option><option>Important Letter</option>
+              <option>Personal Appointment</option><option>Other</option>
+            </select>
+            <label for="when">Date and time</label>
+            <input id="when" class="field" type="datetime-local" required>
+            <label for="details">Notes (optional)</label>
+            <textarea id="details" class="field" rows="3" maxlength="500" placeholder="Location, course, or other details"></textarea>
+            <button type="submit">Add event</button>
+          </form>
+        </article>
+        <article class="panel">
+          <h2>Scheduled events</h2>
+          <p class="muted">Manage added and imported events from the Schedule tab.</p>
+        </article>
+      </section>
+    </section>
+
+    <section id="filesView" class="view-panel" hidden>
+      <article class="panel">
+        <h2>📁 Course files and documents</h2>
+        <p>Choose files to encrypt and save locally in this browser.</p>
+        <button id="chooseFiles" type="button">Choose files</button>
+        <input id="filePicker" type="file" multiple>
+        <p id="fileMessage" class="muted" aria-live="polite"></p>
+        <ul id="fileList" class="file-list"></ul>
+      </article>
+    </section>
+
+    <section id="routinePanel" class="view-panel" hidden>
+      <section class="status">
+        <p id="routineAlarmStatus">Routine alarms are separate from scheduled event alarms.</p>
+        <div class="actions">
+          <button id="activateRoutineSound" class="teal" type="button">🔔 Enable</button>
+          <button id="testRoutineSound" class="secondary" type="button" disabled>Test routine sound</button>
+        </div>
+      </section>
+      <section class="grid">
+        <article class="panel">
+          <h2>My daily routine</h2>
+          <form id="routineForm">
+            <label for="routineTitle">Routine name</label>
+            <input id="routineTitle" class="field" maxlength="120" required>
+            <label for="routineTime">Alarm time</label>
+            <input id="routineTime" class="field" type="time" required>
+            <label for="routineRepeat">Repeat</label>
+            <select id="routineRepeat" class="field">
+              <option value="once">Once</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+            </select>
+            <div id="routineDateField">
+              <label for="routineDate">Date</label>
+              <input id="routineDate" class="field" type="date">
+            </div>
+            <div id="routineWeekdayField" hidden>
+              <label for="routineWeekday">Weekday</label>
+              <select id="routineWeekday" class="field">
+                <option value="0">Sunday</option><option value="1">Monday</option>
+                <option value="2">Tuesday</option><option value="3">Wednesday</option>
+                <option value="4">Thursday</option><option value="5">Friday</option>
+                <option value="6">Saturday</option>
+              </select>
+            </div>
+            <button type="submit">Save routine alarm</button>
+          </form>
+        </article>
+        <article class="panel">
+          <h2>Routine alarms</h2>
+          <ul id="routineList" class="event-list"></ul>
+        </article>
+      </section>
+    </section>
+  </main>
+
+  <script src="core.js"></script>
+  <script src="app.js?v=14"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(error => {
+          console.error("Could not register the offline app worker.", error);
+        });
+      });
+    }
+  </script>
 </body>
 </html>
