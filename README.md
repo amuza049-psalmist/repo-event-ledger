@@ -17,9 +17,9 @@
   * **Academic Events:** Track **Labs**, **Tests**, **Quizzes**, **Exams**, **Assignments**, and **Academic Records**.
   * **Other Events:** Separately manage **Church Services**, **Work Shifts**, **Internship Programs**, **Important Letters**, and **Personal Appointments**.
   * Events stay saved until deleted in the app; past events are marked in red as **Missed** with their scheduled date and time.
-* **🔔 Instant Device Alarms & Native Calendar Export:**
-  * Plays a loud polyphonic ringtone, vibrates supported mobile devices, and triggers system notifications at the exact scheduled second.
-  * Includes a **📲 Phone Alarm** button on every event to export a native `.ics` trigger directly into your phone's built-in calendar or alarm app.
+* **🔔 Event alarms & phone-calendar export:**
+  * While the app page is open, it plays a synthesized browser ringtone, vibrates supported devices, and sends a browser notification when permission is granted. Keep the page open and enable alarm sound; browser background and power-saving restrictions can delay alarms.
+  * The **📲 Phone alarm (.ics)** button downloads a calendar event with an at-event alert. Import it into a supported phone calendar and configure its alert tone there. The website cannot select or play the device's native alarm ringtone, and calendar apps may handle imported alerts differently.
 * **📁 Course Files & Document Manager:** Tap a file to open it, or use its three-dot menu to open, download, share through your device's share sheet, or delete it. Browsers may download unsupported file types; active-content files are downloaded rather than rendered in the app's origin.
 * **⏰ My Daily Routine:** Set independent one-time, daily, or weekly alarms on a selected weekday. Missed occurrences while the app is closed are skipped; routine alarms ring only while the app is open.
 * **🧭 Organized dashboard:** Use the Schedule, Events, Files, and Routine tabs to move directly between app sections. Compact icon-labeled actions keep controls clear on phones.
@@ -35,7 +35,7 @@
    * Enter a **10-digit computer number** starting with `2` (e.g., `2024067832`).
    * Create a **password starting with `unza`** that is at least 6 characters long. Letters and digits may be added after `unza`.
 3. **Log In:** Use your saved computer number and password on the login screen.
-4. **Activate Alarms:** Click **Activate alarm sound** at the top of the dashboard so your browser unlocks audio ringtones and notifications.
+4. **Activate Browser Alarms:** Click **Activate alarm sound** and allow notifications. Browser alarms need the app page open. To use the phone calendar's own alert tone, export an event with **Phone alarm (.ics)**, import it into your calendar app, and configure its alert settings.
 5. **Add Events or Sync Moodle:** Schedule academic or personal events manually, or click **Export from Moodle** and upload your `.ics` calendar file.
 
 ### Install on your phone
@@ -52,7 +52,7 @@ The app encrypts saved events, routine alarms, and files in this browser using A
 
 ## 🛠️ Built With
 
-* **HTML5 & CSS3** — Responsive dark-glass interface with custom campus styling.
+* **HTML5 & CSS3** — Responsive dark-glass interface with custom campus styling and locally bundled Plus Jakarta Sans.
 * **Vanilla JavaScript (ES5/ES6)** — Client-side authentication, Web Audio API ringtone synthesizer, `.ics` calendar parser/generator, and `localStorage` persistence.
 * **GitHub Pages** — Static web hosting.
 
@@ -69,6 +69,8 @@ repo-event-ledger/
 ├── icon-192.png           # Home screen icon
 ├── icon-512.png           # Install and maskable icon
 ├── unza-library.jpg       # Main Library banner shown after login
+├── plus-jakarta-sans-latin.woff2 # Locally bundled interface font
+├── PLUS-JAKARTA-SANS-OFL.txt # Font license
 ├── manifest.webmanifest   # Installable web app metadata
 ├── service-worker.js      # Offline app-shell caching
 ├── test/

@@ -10,9 +10,10 @@
   <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="apple-touch-icon" href="icon-192.png">
   <style>
+    @font-face { font-family:"Plus Jakarta Sans"; font-style:normal; font-weight:400 700; font-display:swap; src:url("plus-jakarta-sans-latin.woff2") format("woff2"); }
     :root { --bg:#0d1117; --panel:rgba(22,27,34,.94); --line:#30363d; --text:#f0f6fc; --muted:#c9d1d9; --teal:#0d9488; --blue:#0969da; --red:#da3633; }
     * { box-sizing:border-box; }
-    body { margin:0; min-height:100vh; padding:20px; color:var(--text); font:16px/1.5 system-ui,"Segoe UI",sans-serif; background:linear-gradient(rgba(13,17,23,.82),rgba(13,17,23,.92)),url("unza-library.jpg") center/cover fixed no-repeat #0d1117; }
+    body { margin:0; min-height:100vh; padding:20px; color:var(--text); font:16px/1.5 "Plus Jakarta Sans",system-ui,"Segoe UI",sans-serif; background:linear-gradient(rgba(13,17,23,.82),rgba(13,17,23,.92)),url("unza-library.jpg") center/cover fixed no-repeat #0d1117; }
     main { max-width:1050px; margin:auto; }
     header,.panel,.status { padding:18px; border:1px solid var(--line); border-radius:12px; background:var(--panel); backdrop-filter:blur(8px); margin-bottom:16px; }
     header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }
@@ -66,7 +67,7 @@
     #userSession { display:flex; align-items:center; flex-wrap:wrap; gap:7px; color:var(--muted); }
     #loggedInUser { font-size:.78rem; }
     #userSession button { background:#30363d; }
-    #logout { padding:5px 9px; font-family:"Trebuchet MS",Verdana,sans-serif; font-size:.78rem; font-weight:700; letter-spacing:.03em; }
+    #logout { padding:5px 9px; font-size:.78rem; font-weight:700; letter-spacing:.03em; }
     .app-brand h1 { margin-bottom:2px; }
     .app-brand p { margin:0; }
     .app-nav { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-bottom:16px; }
@@ -167,6 +168,7 @@
           <button id="testAlarm" class="secondary" type="button" disabled>Test alarm sound</button>
         </div>
       </section>
+      <p class="notice">Browser alarms use this app's ringtone and require the page to stay open. To use your phone's own calendar alarm tone, export an event with its Phone alarm button, import the .ics file into your calendar app, and set the alert tone there. The app cannot control your device's ringtone.</p>
       <article class="panel">
         <h2>UNZA portals</h2>
         <div class="links">
@@ -276,7 +278,7 @@
   </main>
 
   <script src="core.js"></script>
-  <script src="app.js?v=15"></script>
+  <script src="app.js?v=16"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {

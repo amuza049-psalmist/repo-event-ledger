@@ -128,7 +128,7 @@
       const alarm=document.createElement("button");
       alarm.type="button";
       alarm.className="teal";
-      setButtonLabel(alarm,"⏰","Phone alarm");
+      setButtonLabel(alarm,"⏰","Phone alarm (.ics)");
       alarm.addEventListener("click",()=>{downloadICS([event],event.title);addActivity("Exported phone alarm: "+event.title)});
       const remove=document.createElement("button");
       remove.type="button";
