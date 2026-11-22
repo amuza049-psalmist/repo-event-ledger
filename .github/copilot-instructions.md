@@ -2,47 +2,55 @@
 
 ## Project overview
 
-- This repository is a static, client-side MY UNILIFE(UNZA) portal. It is deployed as a GitHub Pages-compatible single-page application.
-- `index.html` is the source of truth and contains the complete HTML, CSS, and JavaScript. Keep application changes in this file unless the repository structure is intentionally expanded.
-- `README.md` describes project features and usage. Update it when user-facing behavior or repository structure changes.
-- There is no package manager, build step, framework, test runner, or backend in the current repository.
-- `unza.jpg` is referenced by the README but is not currently present; do not claim or add it unless requested.
+- This is a static, client-side MY UNILIFE(UNZA) PWA deployed through GitHub Pages.
+- Use `index.html` for the document shell and styles, `app.js` for browser DOM and application behavior, `core.js` for pure logic that can run in a browser or Node, and `service-worker.js` for the offline app shell.
+- `test/core.test.js` is a dependency-free Node test runner for `core.js`; there is no package manager, build step, framework, or backend.
+- Keep `README.md` in sync with user-facing features and repository structure.
 
 ## Editing conventions
 
-- Preserve the existing vanilla HTML, CSS, and JavaScript style. Do not introduce frameworks, libraries, or build tooling for small changes.
-- Keep the one-page structure and existing visual language: dark glass panels, teal/blue actions, red destructive actions, responsive CSS, and mobile support.
-- Use the existing `const`, `let`, arrow functions, template literals, DOM helpers, `replaceChildren()`, and `textContent` patterns already used in `index.html`.
-- Prefer surgical changes to the relevant function or markup block. Avoid unrelated formatting or restructuring of the embedded script.
-- Keep the page accessible: preserve labels and form associations, use semantic elements, maintain keyboard operation, and use ARIA/live status text when dynamic feedback changes.
-- Preserve external portal links and add `target="_blank"` links with `rel="noopener noreferrer"` for consistency.
-- Keep account access and data storage local to the browser; this static site has no backend or server-side authentication.
+- Preserve the vanilla HTML, CSS, and JavaScript style. Do not introduce frameworks, libraries, package files, or build tooling for small changes.
+- Keep the existing dark-glass visual language: teal/blue actions, red destructive actions, and mobile responsive layouts.
+- Prefer small changes in the relevant file. Keep DOM-free logic in `core.js` and browser-only APIs in `app.js`.
+- `core.js` exports through `module.exports` for Node and `window.Core` for browsers. When moving or changing shared pure functions, keep both export paths and tests working.
+- Preserve existing DOM element IDs and event wiring unless a change intentionally updates both `index.html` and `app.js`.
+- Use semantic elements, associated labels, visible focus styles, keyboard-operable controls, and ARIA/live status text for dynamic feedback.
+- Use DOM nodes, `textContent`, and `replaceChildren()` for untrusted event, routine, and file names. Do not build dynamic markup with `innerHTML` or inject untrusted values into `.ics` without escaping.
+- Preserve external portal links and use `target="_blank"` with `rel="noopener noreferrer"` for new external links.
+- Keep account access and data storage local to the browser; this static site has no server-backed authentication.
 
 ## Application behavior
 
-- Events are encrypted with Web Crypto (AES-GCM, using a PBKDF2-derived account key) before persistence in `localStorage` under `unza-event-ledger-events-v1`. Never store decrypted event data or passwords in browser storage.
-- My Daily Routine alarms are separate from event alarms and stored encrypted in `localStorage` under `unza-event-ledger-routines-v1`. They use their own scheduler and audio toggle; missed occurrences while the app was closed are skipped.
-- Uploaded files are encrypted with the same in-memory account key before persistence in IndexedDB database `unza-event-ledger-files-v1`, object store `files`, with a 25 MB per-file limit.
-- Do not automatically expire saved events or files; keep them until the user deletes them or explicitly resets the local account.
-- Uploaded files open from a one-tap file link; its three-dot menu includes open, download, share, and delete. Use the Web Share API when supported and provide a clear fallback. Render only safe preview types inline; download active-content/unsupported types rather than opening them in the app's origin.
-- The account encryption key exists only while the user is logged in. Do not add automatic session restoration; logout/reload should require the password again. Forgotten passwords cannot recover encrypted data.
-- The forgotten-password reset deletes the account and encrypted event/routine/file data from this browser; it does not recover the old data.
-- Treat the local login as a lock for encrypted local data, not protection against a compromised browser/device or modified client code. Use HTTPS/Web Crypto; do not claim server-backed security.
-- Calendar imports and exports use `.ics` text. Preserve CRLF output, escaping, VEVENT structure, UID/DTSTAMP/DTSTART fields, and the existing duplicate detection by title and start time.
-- Alarm scheduling is browser-limited. Preserve future-event validation, page-visible timer behavior, Web Audio activation, Notification permission handling, and the stop-alarm behavior.
-- My Daily Routine uses a separate encrypted routine list and scheduler, with its own sound toggle. Repeat once, daily, or weekly on a chosen weekday; skip overdue routine occurrences on login, and never claim browser alarms run in the background.
-- Browser APIs can be unavailable or restricted. Keep capability checks and user-visible fallback/error messages for AudioContext, IndexedDB, Notifications, localStorage, FileReader, and Blob URLs.
-- Use `textContent` or DOM nodes for untrusted event/title/file data instead of injecting HTML. Continue escaping values written into `.ics` files.
+- Events are stored encrypted under `unza-event-ledger-events-v1`; routine alarms are stored separately under `unza-event-ledger-routines-v1`. Never persist decrypted event/routine data or passwords in `localStorage`.
+- Web Crypto uses AES-GCM with a PBKDF2-derived key and the account key exists only while logged in. Preserve logout/reload password requirements and forgotten-password behavior. Do not claim server-backed or compromised-device security.
+- Uploaded files use IndexedDB database `unza-event-ledger-files-v1`, object store `files`, and a 25 MB per-file limit. Encrypt file bytes and metadata with the in-memory account key.
+- Do not automatically expire events or files. The account reset is destructive and must continue to delete the account, events, routines, and IndexedDB files.
+- Preserve separate event and routine schedulers, future-event validation, page-visible timers, Web Audio activation, Notification permission handling, vibration, and stop-alarm behavior.
+- Routine occurrences repeat once, daily, or weekly on a selected weekday. Skip overdue occurrences while the app was closed and keep routine alarms browser-page-only.
+- Calendar import/export must preserve `.ics` CRLF output, escaping, `VEVENT`, `UID`, `DTSTAMP`, `DTSTART`, and duplicate detection by title and start time.
+- File links open or download from the current interaction. Keep the three-dot open/download/share/delete actions, Web Share fallback messages, and download behavior for unsupported or active-content types.
+- Preserve capability checks and user-visible fallback/error messages for AudioContext, IndexedDB, Notifications, `localStorage`, FileReader, Blob URLs, and secure-context Web Crypto errors.
+
+## PWA maintenance
+
+- When app-shell assets change, update `service-worker.js` consistently: bump `CACHE_NAME`, update `APP_SHELL`, and keep the `app.js?v=<number>` cache entry and `index.html` script query in sync.
+- Keep `manifest.webmanifest`, the icon files, and the offline app-shell cache aligned with the displayed app.
 
 ## Validation
 
-- After editing `index.html`, run a local server and request the page:
+- Run the focused pure-logic tests after changing `core.js` or testable app logic:
+
+  ```bash
+  node test/core.test.js
+  ```
+
+- Start the static site and verify the document response:
 
   ```bash
   python3 -m http.server 4173
   curl -I http://127.0.0.1:4173/
   ```
 
-- Manually verify affected browser behavior in a desktop and mobile-sized viewport. Focus on event creation/deletion, alarm activation and cancellation, `.ics` import/export, file upload/download/deletion, storage fallback/error states, and responsive layout.
-- Stop and test the alarm flows only when browser permission and audio behavior can be observed safely.
+- Manually verify affected behavior in desktop and mobile-sized viewports. Exercise event/routine creation and deletion, alarm activation/cancellation, `.ics` import/export, file upload/open/download/share/delete, reset behavior, storage fallbacks, and responsive layout.
+- Test alarms only when browser audio, notification, and vibration behavior can be observed safely. Do not leave test alarms running unattended.
 - Before finishing, inspect `git diff` and ensure no unrelated files or generated test artifacts are changed.
